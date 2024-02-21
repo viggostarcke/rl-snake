@@ -9,7 +9,7 @@ from gymnasium import spaces
 
 
 class SnakeEnv(gym.Env):
-    metadata = {"render_modes": ["human", "rbg_array"], "render_fps": 30}
+    metadata = {"render_modes": ["human", "rbg_array"], "render_fps": 1}
 
     def __init__(self, render_mode=None, size=10, prev_moves_count=10):
         self.score = 0
@@ -129,7 +129,7 @@ class SnakeEnv(gym.Env):
             if self.snake.check_apple_eat(self.apple_coord):
                 self.snake.grow()
                 self.score += 1
-                reward += 10
+                reward += 20
                 self.reset_apple()
             else:
                 reward -= 1
@@ -176,8 +176,7 @@ class SnakeEnv(gym.Env):
         return self.prev_moves
 
     def render(self):
-        if self.render_mode == "rgb_array":
-            return self._render_frame()
+        return self._render_frame()
 
     def _render_frame(self):
         if self.window is None and self.render_mode == "human":
