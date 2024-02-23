@@ -137,7 +137,7 @@ class SnakeEnv(gym.Env):
         observation = self._get_observation()
         info = self._get_info()
 
-        return observation, reward, info, done
+        return observation, reward, done, False, info
 
     # tries to place apple randomly, if apple is not in snake body returns
     def reset_apple(self):
