@@ -76,9 +76,14 @@ while run_game:
 
     # draw snake
     for i in range(snake.get_size()):
-        x = square_size * (snake.body[i][0][0])
-        y = square_size * (snake.body[i][0][1])
-        pygame.draw.rect(screen, 'green', [x, y, square_size, square_size])
+        if i == 0:
+            x = square_size * (snake.body[i][0][0])
+            y = square_size * (snake.body[i][0][1])
+            pygame.draw.rect(screen, 'blue', [x, y, square_size, square_size])
+        else:
+            x = square_size * (snake.body[i][0][0])
+            y = square_size * (snake.body[i][0][1])
+            pygame.draw.rect(screen, 'green', [x, y, square_size, square_size])
 
     # draw grid play area
     for i in range(1, board_dim):

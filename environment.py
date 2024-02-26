@@ -107,6 +107,10 @@ class SnakeEnv(gym.Env):
         self.reset_apple()
         observation = self._get_observation()
         info = self._get_info()
+
+        if self.render_mode == "human":
+            self._render_frame()
+
         return observation, info
 
     def step(self, action):
@@ -133,6 +137,9 @@ class SnakeEnv(gym.Env):
                 self.reset_apple()
             else:
                 reward -= 1
+
+        if self.render_mode == "human":
+            self._render_frame()
 
         observation = self._get_observation()
         info = self._get_info()
@@ -196,9 +203,14 @@ class SnakeEnv(gym.Env):
 
         # draw snake
         for i in range(self.snake.get_size()):
-            x = self.square_size * (self.snake.body[i][0][0])
-            y = self.square_size * (self.snake.body[i][0][1])
-            pygame.draw.rect(self.window, 'green', [x, y, self.square_size, self.square_size])
+            if i == 0:
+                x = self.square_size * (self.snake.body[i][0][0])
+                y = self.square_size * (self.snake.body[i][0][1])
+                pygame.draw.rect(self.window, 'blue', [x, y, self.square_size, self.square_size])
+            else:
+                x = self.square_size * (self.snake.body[i][0][0])
+                y = self.square_size * (self.snake.body[i][0][1])
+                pygame.draw.rect(self.window, 'green', [x, y, self.square_size, self.square_size])
 
         # draw grid
         for i in range(1, self.board_dim):
