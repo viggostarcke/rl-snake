@@ -4,6 +4,7 @@ from environment import SnakeEnv
 from stable_baselines3 import PPO
 
 env = SnakeEnv()
+env.render_mode = "human"
 
 model = PPO("MlpPolicy", env, verbose=1)
 

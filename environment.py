@@ -153,7 +153,7 @@ class SnakeEnv(gym.Env):
                 reward += 100
                 self.reset_apple()
             else:
-                reward -= 10
+                reward -= 1
 
         if self.render_mode == "human":
             self._render_frame()
