@@ -9,7 +9,7 @@ from gymnasium import spaces
 
 
 class SnakeEnv(gym.Env):
-    metadata = {"render_modes": ["human", "rbg_array"], "render_fps": 1}
+    metadata = {"render_modes": ["human", "rbg_array"], "render_fps": 20}
 
     def __init__(self, render_mode=None, size=10, prev_moves_count=10):
         self.score = 0
@@ -37,11 +37,13 @@ class SnakeEnv(gym.Env):
         next 2: snake head x and y
         last: snake body length
         """
-        prev_moves_count = 10
-        self.observation_space = spaces.Box(
-            low=np.array([0, 0, 0, 0, 0] + [0]*prev_moves_count),
-            high=np.array([1, 1, 1, 1, 1] + [1]*prev_moves_count),
-            dtype=np.float32)
+        # prev_moves_count = 10
+        # self.observation_space = spaces.Box(
+        #     low=np.array([0, 0, 0, 0, 0] + [0] * prev_moves_count),
+        #     high=np.array([1, 1, 1, 1, 1] + [1] * prev_moves_count),
+        #     dtype=np.float32)
+        # self.observation_space = spaces.Discrete(15)
+        self.observation_space = spaces.Box(low=0, high=1, shape=(15,), dtype=np.float32)
 
         # 0: left, 1: continue, 2: right
         self._action_to_dir = {
@@ -73,24 +75,38 @@ class SnakeEnv(gym.Env):
     # start by apple x, apple y, snake head x, snake head y, snake length, prev moves
     # later implement delta and see diff
     def _get_observation(self):
-        # check with one-liner when everything works:
-        # apple_x, apple_y = self.apple_coord
-        apple_x = self.apple_coord[0]
-        apple_y = self.apple_coord[1]
-
-        # check with one-liner when everything works:
-        # snake_head_x, snake_head_y = self.snake.get_head()
-        snake_head_x = self.snake.get_head()[0]
-        snake_head_y = self.snake.get_head()[1]
-
+        apple_x, apple_y = self.apple_coord
+        snake_head_x, snake_head_y = self.snake.get_head()
         snake_size = self.snake.get_size()
-        
         prev_moves = self.get_prev_moves()
         padding = [-1] * (self.prev_moves_count - len(prev_moves))
         prev_moves.extend(padding)
-        
-        observation = np.array([apple_x, apple_y, snake_head_x,
-                                snake_head_y, snake_size] + prev_moves, dtype=np.float32)
+
+        # normalize apple coords
+        apple_x_norm = apple_x / (self.board_dim - 1)
+        apple_y_norm = apple_y / (self.board_dim - 1)
+
+        # normalize snake head coords
+        snake_head_x_norm = snake_head_x / (self.board_dim - 1)
+        snake_head_y_norm = snake_head_y / (self.board_dim - 1)
+
+        # normalize snake size
+        snake_size_norm = snake_size / self.board_dim
+
+        # normalize prev moves
+        # 0.1: left
+        # 0.2: continue
+        # 0.3: right
+        # 1.0: padding
+        prev_moves_norm = [(move + 1) / self.board_dim if move != -1 else 1.0 for move in prev_moves]
+
+        observation = np.array([
+                                   apple_x_norm,
+                                   apple_y_norm,
+                                   snake_head_x_norm,
+                                   snake_head_y_norm,
+                                   snake_size_norm]
+                               + prev_moves_norm, dtype=np.float32)
 
         return observation
 
@@ -128,15 +144,16 @@ class SnakeEnv(gym.Env):
 
         if self.snake.check_wall_collision(self.board_dim) or self.snake.check_self_collision():
             reward -= 100
+            self.reset_apple()
             done = True
         else:
             if self.snake.check_apple_eat(self.apple_coord):
                 self.snake.grow()
                 self.score += 1
-                reward += 20
+                reward += 100
                 self.reset_apple()
             else:
-                reward -= 1
+                reward -= 10
 
         if self.render_mode == "human":
             self._render_frame()
@@ -214,8 +231,10 @@ class SnakeEnv(gym.Env):
 
         # draw grid
         for i in range(1, self.board_dim):
-            pygame.draw.line(self.window, 'white', [self.square_size * i, 0], [self.square_size * i, self.y_max], self.grid_width)
-            pygame.draw.line(self.window, 'white', [0, self.square_size * i], [self.x_max, self.square_size * i], self.grid_width)
+            pygame.draw.line(self.window, 'white', [self.square_size * i, 0], [self.square_size * i, self.y_max],
+                             self.grid_width)
+            pygame.draw.line(self.window, 'white', [0, self.square_size * i], [self.x_max, self.square_size * i],
+                             self.grid_width)
 
         if self.render_mode == "human":
             pygame.display.flip()

@@ -4,7 +4,8 @@ import gymnasium as gym
 from environment import SnakeEnv
 from stable_baselines3 import DQN
 
-env = SnakeEnv(render_mode='human')
+env = SnakeEnv()
+env.render_mode = "human"
 
 model = DQN("MlpPolicy", env, verbose=1)
 

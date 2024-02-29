@@ -3,7 +3,12 @@ import numpy as np
 
 class Snake:
     def __init__(self, board_dim):
-        self.body = [[(board_dim / 2, board_dim / 2), 'right']]
+        head_start_pos = (board_dim - 7, board_dim - 4)
+        self.body = [
+            [head_start_pos, 'right'],
+            [(head_start_pos[0] - 1, head_start_pos[1]), 'right'],
+            [(head_start_pos[0] - 2, head_start_pos[1]), 'right']
+        ]
         # self.body tracks both the position and direction of each part of the snake body
 
     # methods to get or set snake attributes
@@ -62,7 +67,12 @@ class Snake:
         return False
 
     def reset(self, board_dim):
-        self.body = [[(board_dim / 2, board_dim / 2), 'right']]
+        head_start_pos = (board_dim - 7, board_dim - 4)
+        self.body = [
+            [head_start_pos, 'right'],
+            [(head_start_pos[0] - 1, head_start_pos[1]), 'right'],
+            [(head_start_pos[0] - 2, head_start_pos[1]), 'right']
+        ]
 
     def check_wall_collision(self, board_dim):
         curr_head_pos = self.get_head()

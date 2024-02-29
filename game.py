@@ -55,6 +55,10 @@ while run_game:
     if snake.check_wall_collision(board_dim) or snake.check_self_collision():
         print("Score: {}".format(score))
         snake.reset(board_dim)
+        while True:
+            apple_coord = (random.randint(0, board_dim - 1), random.randint(0, board_dim - 1))
+            if not snake.check_apple_coord(apple_coord):
+                break
         score = 0
 
     # check if snake eats apple
