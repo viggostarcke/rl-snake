@@ -18,6 +18,6 @@ The snake is rendered with a blue head, while the rest of the body is green.\
 - [dqn_agent.py](https://github.com/viggostarcke/rl-snake/blob/main/dqn_agent.py): The snake agent that uses standard stable-baselines3 DQN to learn how to make decisions. Configure render mode and learning inside file.
 - [ppo_agent.py](https://github.com/viggostarcke/rl-snake/blob/main/ppo_agent.py): ***Not implemented properly yet***: The snake agent that uses standard stable-baselines3 PPO to learn how to make decisions.
 # Issues
-- DQN:
-- - model.learn works properly. The learning however is abit tame, and the snake never reaches later stages in game.
-  - model.load doesn't work. The snake gets stuck in loops right away. 
+**DQN**:
+- model.learn works properly. The learning however is abit tame, and the snake never reaches later stages in game.
+- model.load doesn't work. The snake gets stuck in loops right away. 
