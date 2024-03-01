@@ -13,19 +13,19 @@ env = SnakeEnv()
 if parser.parse_args().r:
     env.render_mode = "human"  # render every game
 
-num_episodes = 500_000
+num_timesteps = 500_000
 learn = False
 learn = parser.parse_args().learn
 
 if learn:
     model = PPO("MlpPolicy", env, verbose=1)
-    model.learn(total_timesteps=num_episodes)
+    model.learn(total_timesteps=num_timesteps)
     model.save("ppo_agent")
 else:
     # Does not work properly: Snake gets stuck in loops
     model = PPO.load("ppo_agent")
     obs = env.reset()
-    for episode in range(num_episodes):
+    for episode in range(num_timesteps):
         obs, info = env.reset()
         done = False
         while not done:
