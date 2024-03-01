@@ -1,22 +1,29 @@
-import random
-import gymnasium as gym
+import argparse
 
 from environment import SnakeEnv
 from stable_baselines3 import DQN
 
-env = SnakeEnv()
-env.render_mode = "human"  # render every game
+parser = argparse.ArgumentParser(description='Learning')
+parser.add_argument('--learn', default=False, action='store_true')
+parser.add_argument('-r', default=False, action='store_true')
 
-num_episodes = 100_000
-learn = True
+
+env = SnakeEnv()
+
+if parser.parse_args().r:
+    env.render_mode = "human"  # render every game
+
+num_episodes = 1_000_000
+learn = False
+learn = parser.parse_args().learn
 
 if learn:
     model = DQN("MlpPolicy", env, verbose=1)
     model.learn(total_timesteps=num_episodes)
-    model.save("dqn_snake")
+    model.save("dqn_agent")
 else:
     # Does not work properly: Snake gets stuck in loops
-    model = DQN.load("dqn_snake")
+    model = DQN.load("dqn_agent")
     obs = env.reset()
     for episode in range(num_episodes):
         obs, info = env.reset()

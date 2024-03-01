@@ -25,25 +25,18 @@ class SnakeEnv(gym.Env):
 
         # from direction snake head is heading: left, right or continue
         self.action_space = spaces.Discrete(3)
-        """
-        want to know position of snake head and apple relative to head (delta).
-            and then length of snake + previous moves
-        that way the agent knows the exact coordinates of every body part, and can learn to avoid
-        prev_moves_count = number of prev moves known to agent.
-            experiment w this. but: higher = more complex model for agent to learn
-            lower = too little information to work with?
-        array of 5 represents:
-        first 2: apples x and y
-        next 2: snake head x and y
-        last: snake body length
-        """
+
+        # apple coords, snake head coords, 10 prev moves
         # prev_moves_count = 10
         # self.observation_space = spaces.Box(
         #     low=np.array([0, 0, 0, 0, 0] + [0] * prev_moves_count),
         #     high=np.array([1, 1, 1, 1, 1] + [1] * prev_moves_count),
         #     dtype=np.float32)
         # self.observation_space = spaces.Discrete(15)
-        self.observation_space = spaces.Box(low=0, high=1, shape=(15,), dtype=np.float32)
+        # self.observation_space = spaces.Box(low=0, high=1, shape=(15,), dtype=np.float32)
+
+        # apple delta coords, adjacent fields
+        self.observation_space = spaces.Box(low=-1, high=1, shape=(5,), dtype=np.float32)
 
         # 0: left, 1: continue, 2: right
         self._action_to_dir = {
@@ -72,41 +65,59 @@ class SnakeEnv(gym.Env):
         self.window = None
         self.clock = None
 
+    """
+    retired observation getter
+    """
     # start by apple x, apple y, snake head x, snake head y, snake length, prev moves
     # later implement delta and see diff
+    # def _get_observation(self):
+    #     apple_x, apple_y = self.apple_coord
+    #     snake_head_x, snake_head_y = self.snake.get_head()
+    #     snake_size = self.snake.get_size()
+    #     prev_moves = self.get_prev_moves()
+    #     padding = [-1] * (self.prev_moves_count - len(prev_moves))
+    #     prev_moves.extend(padding)
+    #
+    #     # normalize apple coords
+    #     apple_x_norm = apple_x / (self.board_dim - 1)
+    #     apple_y_norm = apple_y / (self.board_dim - 1)
+    #
+    #     # normalize snake head coords
+    #     snake_head_x_norm = snake_head_x / (self.board_dim - 1)
+    #     snake_head_y_norm = snake_head_y / (self.board_dim - 1)
+    #
+    #     # normalize snake size
+    #     snake_size_norm = snake_size / self.board_dim
+    #
+    #     # normalize prev moves
+    #     # 0.1: left
+    #     # 0.2: continue
+    #     # 0.3: right
+    #     # 1.0: padding
+    #     prev_moves_norm = [(move + 1) / self.board_dim if move != -1 else 1.0 for move in prev_moves]
+    #
+    #     observation = np.array([
+    #                                apple_x_norm,
+    #                                apple_y_norm,
+    #                                snake_head_x_norm,
+    #                                snake_head_y_norm,
+    #                                snake_size_norm]
+    #                            + prev_moves_norm, dtype=np.float32)
+    #
+    #     return observation
+
     def _get_observation(self):
-        apple_x, apple_y = self.apple_coord
-        snake_head_x, snake_head_y = self.snake.get_head()
-        snake_size = self.snake.get_size()
-        prev_moves = self.get_prev_moves()
-        padding = [-1] * (self.prev_moves_count - len(prev_moves))
-        prev_moves.extend(padding)
+        # get apple delta coords
+        apple_coords = np.array(self.apple_coord)
+        snake_head_coords = np.array(self.snake.get_head())
+        apple_delta = apple_coords - snake_head_coords
 
-        # normalize apple coords
-        apple_x_norm = apple_x / (self.board_dim - 1)
-        apple_y_norm = apple_y / (self.board_dim - 1)
+        adjacent_fields = np.array(self.get_adjacent_fields())
 
-        # normalize snake head coords
-        snake_head_x_norm = snake_head_x / (self.board_dim - 1)
-        snake_head_y_norm = snake_head_y / (self.board_dim - 1)
+        # normalize apple delta
+        apple_delta_norm = apple_delta / (self.board_dim - 1)
 
-        # normalize snake size
-        snake_size_norm = snake_size / self.board_dim
-
-        # normalize prev moves
-        # 0.1: left
-        # 0.2: continue
-        # 0.3: right
-        # 1.0: padding
-        prev_moves_norm = [(move + 1) / self.board_dim if move != -1 else 1.0 for move in prev_moves]
-
-        observation = np.array([
-                                   apple_x_norm,
-                                   apple_y_norm,
-                                   snake_head_x_norm,
-                                   snake_head_y_norm,
-                                   snake_size_norm]
-                               + prev_moves_norm, dtype=np.float32)
+        observation = np.concatenate((apple_delta_norm, adjacent_fields))
 
         return observation
 
@@ -143,7 +154,7 @@ class SnakeEnv(gym.Env):
             self.prev_moves.pop(0)
 
         if self.snake.check_wall_collision(self.board_dim) or self.snake.check_self_collision():
-            reward -= 100
+            reward -= 500
             self.reset_apple()
             done = True
         else:
@@ -153,7 +164,7 @@ class SnakeEnv(gym.Env):
                 reward += 100
                 self.reset_apple()
             else:
-                reward -= 1
+                reward -= 5
 
         if self.render_mode == "human":
             self._render_frame()
@@ -185,18 +196,7 @@ class SnakeEnv(gym.Env):
             self.snake.set_head((curr_head_pos[0], curr_head_pos[1] + 1))
             self.snake.set_dir('down')
 
-    # def one_hot_encode_action(self, action):
-    #     mapping = {
-    #         'left': {0, 0, 0, 1},
-    #         'right': {0, 1, 0, 0},
-    #         'up': {1, 0, 0, 0},
-    #         'down': {0, 0, 1, 0}
-    #     }
-    #
-    #     return mapping[action]
-
     def get_prev_moves(self):
-        # return [self.one_hot_encode_action(action) for action in self.prev_moves]
         return self.prev_moves
 
     def render(self):
@@ -246,3 +246,25 @@ class SnakeEnv(gym.Env):
         if self.window is not None:
             pygame.display.quit()
             pygame.quit()
+
+    def get_adjacent_fields(self):
+        snake_head_pos = np.array(self.snake.get_head())
+        snake_head_dir = self.snake.get_dir()
+        fields = [0, 0, 0]
+        adjacent_fields = {
+            'left': snake_head_pos + np.array([-1, 0]),
+            'right': snake_head_pos + np.array([1, 0]),
+            'up': snake_head_pos + np.array([0, -1]),
+            'down': snake_head_pos + np.array([0, 1])
+        }
+        fields_to_look = self._action_to_dir[snake_head_dir].values()
+        adjacent_fields = [adjacent_fields[field] for field in fields_to_look]
+        assert len(adjacent_fields) == 3
+
+        for i, field in enumerate(adjacent_fields):
+            if field[0] < 0 or field[0] == self.board_dim or field[1] < 0 or field[1] == self.board_dim:
+                fields[i] = 1
+            elif self.snake.check_apple_eat(field):  # reusing code for apple eat check (i.e. if field is in body)
+                fields[i] = 1
+
+        return fields
