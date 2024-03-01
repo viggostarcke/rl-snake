@@ -15,7 +15,9 @@ The snake is rendered with a blue head, while the rest of the body is green.\
 *Observation space* is set to an array of length 5 and a futher default of 10 extra elements. The first 5 elements describe the apples x and y, the snakes head x and y and the length of the snakes body. The 10 further elements describe the 10 last previous moves the snake took.\
 *reset()*-function resets the snake position to the middle of the game grid, aswell as the apples position and the score.\
 *step()*-function moves the snake and then checks for collisions or if the apple has been eaten.
-- [dqn_agent.py](https://github.com/viggostarcke/rl-snake/blob/main/dqn_agent.py): The snake agent that uses standard stable-baselines3 DQN to learn how to make decisions.
-- [ppo_agent.py](https://github.com/viggostarcke/rl-snake/blob/main/ppo_agent.py): The snake agent that uses standard stable-baselines3 PPO to learn how to make decisions.
+- [dqn_agent.py](https://github.com/viggostarcke/rl-snake/blob/main/dqn_agent.py): The snake agent that uses standard stable-baselines3 DQN to learn how to make decisions. Configure render mode and learning inside file.
+- [ppo_agent.py](https://github.com/viggostarcke/rl-snake/blob/main/ppo_agent.py): ***Not implemented properly yet***: The snake agent that uses standard stable-baselines3 PPO to learn how to make decisions.
 # Issues
-- DQN: When running the agent `python .\dqn_agent.py` all games reach a score of 0. I am unsure what exactly is causing this.
+**DQN**:
+- model.learn works properly. The learning however is abit tame, and the snake never reaches later stages in game.
+- model.load doesn't work. The snake gets stuck in loops right away. 
