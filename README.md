@@ -27,5 +27,8 @@ ex: `python .\dqn_agent.py -r --learn`
 
 # Issues
 **DQN**:
-- model.learn works properly. The learning however is abit tame, and the snake never reaches later stages in game.
+- *DQN.learn* works properly. The learning however is abit tame, and the snake never reaches later stages in game.
+  ![image](https://github.com/viggostarcke/rl-snake/assets/94063609/03fff84e-acab-42ac-85c0-f7546b6e1b9d)\
+  *sc of key indicators for a learning run of roughly 1,000,000 timesteps.*
+
 - model.load doesn't work. The snake gets stuck in loops right away. 
