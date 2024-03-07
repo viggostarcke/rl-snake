@@ -17,7 +17,18 @@ The snake is rendered with a blue head, while the rest of the body is green.\
 *step()*-function moves the snake and then checks for collisions or if the apple has been eaten.
 - [dqn_agent.py](https://github.com/viggostarcke/rl-snake/blob/main/dqn_agent.py): The snake agent that uses standard stable-baselines3 DQN to learn how to make decisions. Configure render mode and learning inside file.
 - [ppo_agent.py](https://github.com/viggostarcke/rl-snake/blob/main/ppo_agent.py): ***Not implemented properly yet***: The snake agent that uses standard stable-baselines3 PPO to learn how to make decisions.
+
+# Instructions
+Run the agents, and pass them optional arguments `-r` and `--learn`.\
+`--learn`: runs sb3 *.learn* method and saves the model in a file `dqn_agent.zip` or `ppo_agent.zip`\
+`-r`: renders every game\
+Running the agent without `--learn` argument runs the saved model.\
+ex: `python .\dqn_agent.py -r --learn`
+
 # Issues
 **DQN**:
-- model.learn works properly. The learning however is abit tame, and the snake never reaches later stages in game.
+- *DQN.learn* works properly. The learning however is abit tame, and the snake never reaches later stages in game.
+  ![image](https://github.com/viggostarcke/rl-snake/assets/94063609/03fff84e-acab-42ac-85c0-f7546b6e1b9d)\
+  *sc of key indicators for a learning run of roughly 1,000,000 timesteps.*
+
 - model.load doesn't work. The snake gets stuck in loops right away. 
