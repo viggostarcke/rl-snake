@@ -6,8 +6,8 @@ class Snake:
         head_start_pos = (board_dim - 7, board_dim - 4)
         self.body = [
             [head_start_pos, 'right'],
-            [(head_start_pos[0] - 1, head_start_pos[1]), 'right'],
-            [(head_start_pos[0] - 2, head_start_pos[1]), 'right']
+            # [(head_start_pos[0] - 1, head_start_pos[1]), 'right'],
+            # [(head_start_pos[0] - 2, head_start_pos[1]), 'right']
         ]
         # self.body tracks both the position and direction of each part of the snake body
 
@@ -70,8 +70,8 @@ class Snake:
         head_start_pos = (board_dim - 7, board_dim - 4)
         self.body = [
             [head_start_pos, 'right'],
-            [(head_start_pos[0] - 1, head_start_pos[1]), 'right'],
-            [(head_start_pos[0] - 2, head_start_pos[1]), 'right']
+            # [(head_start_pos[0] - 1, head_start_pos[1]), 'right'],
+            # [(head_start_pos[0] - 2, head_start_pos[1]), 'right']
         ]
 
     def check_wall_collision(self, board_dim):

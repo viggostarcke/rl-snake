@@ -24,7 +24,9 @@ class SnakeEnv(gym.Env):
         self.prev_moves = [0] * prev_moves_count
 
         # from direction snake head is heading: left, right or continue
-        self.action_space = spaces.Discrete(3)
+        # self.action_space = spaces.Discrete(3)
+
+        self.action_space = spaces.Discrete(4)  # 0: left, 1: right, 2: up, 3: down
 
         # apple coords, snake head coords, 10 prev moves
         # prev_moves_count = 10
@@ -36,7 +38,10 @@ class SnakeEnv(gym.Env):
         # self.observation_space = spaces.Box(low=0, high=1, shape=(15,), dtype=np.float32)
 
         # apple delta coords, adjacent fields
-        self.observation_space = spaces.Box(low=-1, high=1, shape=(5,), dtype=np.float32)
+        # self.observation_space = spaces.Box(low=-1, high=1, shape=(5,), dtype=np.float32)
+
+        # apple coords, snake head coords
+        self.observation_space = spaces.Box(low=0, high=1, shape=(4,), dtype=np.float32)
 
         # 0: left, 1: continue, 2: right
         self._action_to_dir = {
@@ -68,8 +73,7 @@ class SnakeEnv(gym.Env):
     """
     retired observation getter
     """
-    # start by apple x, apple y, snake head x, snake head y, snake length, prev moves
-    # later implement delta and see diff
+    # apple x, apple y, snake head x, snake head y, snake length, prev moves
     # def _get_observation(self):
     #     apple_x, apple_y = self.apple_coord
     #     snake_head_x, snake_head_y = self.snake.get_head()
@@ -106,18 +110,37 @@ class SnakeEnv(gym.Env):
     #
     #     return observation
 
+    """
+    retired observation space
+    """
+    # apple coords (relative to head coords), info from 3 adjacent fields
+    # def _get_observation(self):
+    #     # get apple delta coords
+    #     apple_coords = np.array(self.apple_coord)
+    #     snake_head_coords = np.array(self.snake.get_head())
+    #     apple_delta = apple_coords - snake_head_coords
+    #
+    #     adjacent_fields = np.array(self.get_adjacent_fields())
+    #
+    #     # normalize apple delta
+    #     apple_delta_norm = apple_delta / (self.board_dim - 1)
+    #
+    #     observation = np.concatenate((apple_delta_norm, adjacent_fields))
+    #
+    #     return observation
+
+    # apple coords, snake head coords
     def _get_observation(self):
-        # get apple delta coords
+        # get apple coords
         apple_coords = np.array(self.apple_coord)
+        # normalize apple coords
+        apple_coords_norm = apple_coords / (self.board_dim - 1)
+        # get snake head coords
         snake_head_coords = np.array(self.snake.get_head())
-        apple_delta = apple_coords - snake_head_coords
+        # normalize snake head coords
+        snake_head_coords_norm = snake_head_coords / (self.board_dim - 1)
 
-        adjacent_fields = np.array(self.get_adjacent_fields())
-
-        # normalize apple delta
-        apple_delta_norm = apple_delta / (self.board_dim - 1)
-
-        observation = np.concatenate((apple_delta_norm, adjacent_fields))
+        observation = np.concatenate((apple_coords_norm, snake_head_coords_norm))
 
         return observation
 
@@ -141,8 +164,13 @@ class SnakeEnv(gym.Env):
         return observation, info
 
     def step(self, action):
-        curr_dir = self.snake.get_dir()
-        new_dir = self._action_to_dir[curr_dir][int(action)]
+        # old 3 action space
+        # curr_dir = self.snake.get_dir()
+        # new_dir = self._action_to_dir[curr_dir][int(action)]
+
+        action_dir_map = {0: 'left', 1: 'right', 2: 'up', 3: 'down'}
+        new_dir = action_dir_map[action]
+
         # move snake body, then head
         self.snake.move()
         curr_head_pos = self.snake.get_head()
@@ -159,12 +187,15 @@ class SnakeEnv(gym.Env):
             done = True
         else:
             if self.snake.check_apple_eat(self.apple_coord):
-                self.snake.grow()
+                # self.snake.grow()
                 self.score += 1
-                reward += 100
+                # reward += 100
+                manhattan_dist = self.get_manhattan_dist(curr_head_pos, self.apple_coord)
+                reward += manhattan_dist * 1000
+                print("apple!")
                 self.reset_apple()
             else:
-                reward -= 5
+                reward -= 1
 
         if self.render_mode == "human":
             self._render_frame()
@@ -268,3 +299,7 @@ class SnakeEnv(gym.Env):
                 fields[i] = 1
 
         return fields
+
+    def get_manhattan_dist(self, coords1, coords2):
+        return abs(coords1[0] - coords2[0]) + abs(coords1[1] - coords2[1])
+
