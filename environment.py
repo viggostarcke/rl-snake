@@ -9,7 +9,7 @@ from gymnasium import spaces
 
 
 class SnakeEnv(gym.Env):
-    metadata = {"render_modes": ["human", "rbg_array"], "render_fps": 200}
+    metadata = {"render_modes": ["human", "rbg_array"], "render_fps": 20}
 
     def __init__(self, render_mode=None, size=10, prev_moves_count=10):
         self.score = 0
@@ -24,9 +24,9 @@ class SnakeEnv(gym.Env):
         self.prev_moves = [0] * prev_moves_count
 
         # from direction snake head is heading: left, right or continue
-        # self.action_space = spaces.Discrete(3)
-
-        self.action_space = spaces.Discrete(4)  # 0: left, 1: right, 2: up, 3: down
+        self.action_space = spaces.Discrete(3)
+        # 0: left, 1: right, 2: up, 3: down
+        # self.action_space = spaces.Discrete(4)
 
         # BOX: apple coords, snake head coords, 10 prev moves
         # prev_moves_count = 10
@@ -46,8 +46,7 @@ class SnakeEnv(gym.Env):
         # DICT: apple coords, snake head coords, adjacent fields
         self.observation_space = spaces.Dict(
             {
-                'apple_coords': spaces.Box(low=0, high=1, shape=(2,), dtype=np.float32),
-                'snake_head_coords': spaces.Box(low=0, high=1, shape=(2,), dtype=np.float32),
+                'apple_direction': spaces.Discrete(8),
                 'adjacent_fields': spaces.Box(low=0, high=1, shape=(3,), dtype=int)
             }
         )
@@ -157,22 +156,23 @@ class SnakeEnv(gym.Env):
     #     return observation
 
     def _get_observation(self):
-        apple_coords = np.array(self.apple_coord)
-        apple_coords_norm = apple_coords / (self.board_dim - 1)
-        snake_head_coords = np.array(self.snake.get_head())
-        snake_head_coords_norm = snake_head_coords / (self.board_dim - 1)
+        apple_dir = self.get_apple_dir(self.apple_coord)
+        corrected_apple_dir = self.rotate(apple_dir)
         adjacent_fields = np.array(self.get_adjacent_fields())
 
         return {
-            "apple_coords": apple_coords_norm,
-            "snake_head_coords": snake_head_coords_norm,
+            "apple_direction": corrected_apple_dir,
             "adjacent_fields": adjacent_fields
         }
 
     def _get_info(self):
+        apple_dir = self.get_apple_dir(self.apple_coord)
+        corrected_apple_dir = self.rotate(apple_dir)
+        adjacent_fields = np.array(self.get_adjacent_fields())
+
         return {
-            "snake length": self.snake.get_size(),
-            "apple position": self.apple_coord
+            "apple_direction": corrected_apple_dir,
+            "adjacent_fields": adjacent_fields
         }
 
     # reset snake to mid of screen, apples current coordinates and score
@@ -189,12 +189,12 @@ class SnakeEnv(gym.Env):
         return observation, info
 
     def step(self, action):
-        # old 3 action space
-        # curr_dir = self.snake.get_dir()
-        # new_dir = self._action_to_dir[curr_dir][int(action)]
-
-        action_dir_map = {0: 'left', 1: 'right', 2: 'up', 3: 'down'}
-        new_dir = action_dir_map[int(action)]
+        # 3 action space
+        curr_dir = self.snake.get_dir()
+        new_dir = self._action_to_dir[curr_dir][int(action)]
+        # 4 action space
+        # action_dir_map = {0: 'left', 1: 'right', 2: 'up', 3: 'down'}
+        # new_dir = action_dir_map[int(action)]
 
         # move snake body, then head
         self.snake.move()
@@ -207,20 +207,20 @@ class SnakeEnv(gym.Env):
             self.prev_moves.pop(0)
 
         if self.snake.check_wall_collision(self.board_dim) or self.snake.check_self_collision():
-            reward = -500
+            reward -= 500
             self.reset_apple()
             done = True
         else:
             if self.snake.check_apple_eat(self.apple_coord):
-                # self.snake.grow()
+                self.snake.grow()
                 self.score += 1
                 # reward += 100
                 manhattan_dist = self.get_manhattan_dist(curr_head_pos, self.apple_coord)
-                reward = manhattan_dist * 1000
-                print("apple! rew: {}".format(manhattan_dist * 100))
+                print(manhattan_dist)
+                reward += int(manhattan_dist) * 100
                 self.reset_apple()
             else:
-                reward = -5
+                reward -= 5
 
         if self.render_mode == "human":
             self._render_frame()
@@ -302,6 +302,51 @@ class SnakeEnv(gym.Env):
         if self.window is not None:
             pygame.display.quit()
             pygame.quit()
+
+    # gets compass direction apple is in relative to snake head
+    # assumes snake direction is 'up'
+    def get_apple_dir(self, apple):
+        snake_head_x, snake_head_y = self.snake.get_head()
+        apple_x, apple_y = apple
+
+        if ((apple_x - snake_head_x) == 0) and ((apple_y - snake_head_y) < 0):
+            # apple directly north of snake head
+            return 0
+        if ((apple_x - snake_head_x) < 0) and ((apple_y - snake_head_y) < 0):
+            # apple northwest of snake head
+            return 1
+        if ((apple_x - snake_head_x) < 0) and ((apple_y - snake_head_y) == 0):
+            # apple directly west of snake head
+            return 2
+        if ((apple_x - snake_head_x) < 0) and ((apple_y - snake_head_y) > 0):
+            # apple southwest of snake head
+            return 3
+        if ((apple_x - snake_head_x) == 0) and ((apple_y - snake_head_y) > 0):
+            # apple directly south of snake head
+            return 4
+        if ((apple_x - snake_head_x) > 0) and ((apple_y - snake_head_y) > 0):
+            # apple southeast of snake head
+            return 5
+        if ((apple_x - snake_head_x) > 0) and ((apple_y - snake_head_y) == 0):
+            # apple directly east of snake head
+            return 6
+        if ((apple_x - snake_head_x) > 0) and ((apple_y - snake_head_y) < 0):
+            # apple northeast of snake head
+            return 7
+        else:
+            # apple and snake head same field
+            return 8
+
+    # rotates get_apple_dir to fit snakes direction
+    def rotate(self, compass_dir):
+        snake_dir = self.snake.get_dir()
+        if snake_dir == 'left':
+            return (compass_dir + 6) % 8
+        elif snake_dir == 'down':
+            return (compass_dir + 4) % 8
+        elif snake_dir == 'right':
+            return (compass_dir + 2) % 8
+        return compass_dir
 
     def get_adjacent_fields(self):
         snake_head_pos = np.array(self.snake.get_head())
