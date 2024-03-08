@@ -71,28 +71,40 @@ while run_game:
                 break
 
     # render
-    screen.fill("black")
+    screen.fill("white")
 
     # draw apple
+    apple_image = pygame.image.load('.img/apple.png')
+    apple_image = pygame.transform.scale(apple_image, (square_size, square_size))
+
     x = square_size * apple_coord[0]
     y = square_size * apple_coord[1]
-    pygame.draw.rect(screen, 'red', [x, y, square_size, square_size])
+    screen.blit(apple_image, (x, y))
+    # pygame.draw.rect(screen, 'red', [x, y, square_size, square_size])
 
     # draw snake
+    head_image_path = '.img/arrow_right.png'
+    head_image = pygame.image.load(head_image_path)
+    head_image = pygame.transform.scale(head_image, (square_size, square_size))
+
     for i in range(snake.get_size()):
+        part_x, part_y = snake.body[i][0][0], snake.body[i][0][1]
+        x = square_size * (snake.body[i][0][0])
+        y = square_size * (snake.body[i][0][1])
         if i == 0:
-            x = square_size * (snake.body[i][0][0])
-            y = square_size * (snake.body[i][0][1])
-            pygame.draw.rect(screen, 'blue', [x, y, square_size, square_size])
+            screen.blit(head_image, (x, y))
+            # pygame.draw.rect(screen, 'blue', [x, y, square_size, square_size])
         else:
-            x = square_size * (snake.body[i][0][0])
-            y = square_size * (snake.body[i][0][1])
-            pygame.draw.rect(screen, 'green', [x, y, square_size, square_size])
+            prev_part_x, prev_part_y = snake.body[i-1][0][0], snake.body[i-1][0][1]
+            
+
+            screen.blit(head_image, (x, y))
+            # pygame.draw.rect(screen, 'green', [x, y, square_size, square_size])
 
     # draw grid play area
     for i in range(1, board_dim):
-        pygame.draw.line(screen, 'white', [square_size * i, 0], [square_size * i, y_max], grid_width)
-        pygame.draw.line(screen, 'white', [0, square_size * i], [x_max, square_size * i], grid_width)
+        pygame.draw.line(screen, 'black', [square_size * i, 0], [square_size * i, y_max], grid_width)
+        pygame.draw.line(screen, 'black', [0, square_size * i], [x_max, square_size * i], grid_width)
 
     pygame.display.flip()
 

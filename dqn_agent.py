@@ -13,19 +13,19 @@ env = SnakeEnv()
 if parser.parse_args().r:
     env.render_mode = "human"  # render every game
 
-num_timesteps = 1_000_000
+num_episodes = 200_000
 learn = False
 learn = parser.parse_args().learn
 
 if learn:
-    model = DQN("MlpPolicy", env, verbose=1)
-    model.learn(total_timesteps=num_timesteps)
+    model = DQN("MultiInputPolicy", env, verbose=1)
+    model.learn(total_timesteps=num_episodes)
     model.save("dqn_agent")
 else:
     # Does not work properly: Snake gets stuck in loops
     model = DQN.load("dqn_agent")
-    obs = env.reset()
-    for episode in range(num_timesteps):
+    # obs = env.reset()
+    for episode in range(num_episodes):
         obs, info = env.reset()
         done = False
         while not done:
