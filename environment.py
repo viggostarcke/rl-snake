@@ -216,7 +216,6 @@ class SnakeEnv(gym.Env):
                 self.score += 1
                 # reward += 100
                 manhattan_dist = self.get_manhattan_dist(curr_head_pos, self.apple_coord)
-                print(manhattan_dist)
                 reward += int(manhattan_dist) * 100
                 self.reset_apple()
             else:
@@ -267,30 +266,63 @@ class SnakeEnv(gym.Env):
             self.clock = pygame.time.Clock()
 
         # render
-        self.window.fill("black")
+        self.window.fill("white")
+
+        bg_block_image = pygame.image.load('.img/bg_block.jpg')
+        bg_block_image = pygame.transform.scale(bg_block_image, (self.square_size, self.square_size))
+
+        for row in range(self.board_dim):
+            for col in range(self.board_dim):
+                x = col * self.square_size
+                y = row * self.square_size
+                self.window.blit(bg_block_image, (x, y))
 
         # draw apple
+        apple_image = pygame.image.load('.img/apple.jpg')
+        apple_image = pygame.transform.scale(apple_image, (self.square_size, self.square_size))
+
         x = self.square_size * self.apple_coord[0]
         y = self.square_size * self.apple_coord[1]
-        pygame.draw.rect(self.window, 'red', [x, y, self.square_size, self.square_size])
+        self.window.blit(apple_image, (x, y))
+        # pygame.draw.rect(self.window, 'red', [x, y, self.square_size, self.square_size])
 
         # draw snake
+        arrow_left = pygame.image.load('.img/arrow_left.jpg')
+        arrow_left = pygame.transform.scale(arrow_left, (self.square_size, self.square_size))
+
+        arrow_right = pygame.image.load('.img/arrow_right.jpg')
+        arrow_right = pygame.transform.scale(arrow_right, (self.square_size, self.square_size))
+
+        arrow_up = pygame.image.load('.img/arrow_up.jpg')
+        arrow_up = pygame.transform.scale(arrow_up, (self.square_size, self.square_size))
+
+        arrow_down = pygame.image.load('.img/arrow_down.jpg')
+        arrow_down = pygame.transform.scale(arrow_down, (self.square_size, self.square_size))
+
         for i in range(self.snake.get_size()):
-            if i == 0:
-                x = self.square_size * (self.snake.body[i][0][0])
-                y = self.square_size * (self.snake.body[i][0][1])
-                pygame.draw.rect(self.window, 'blue', [x, y, self.square_size, self.square_size])
-            else:
-                x = self.square_size * (self.snake.body[i][0][0])
-                y = self.square_size * (self.snake.body[i][0][1])
-                pygame.draw.rect(self.window, 'green', [x, y, self.square_size, self.square_size])
+            x = self.square_size * (self.snake.body[i][0][0])
+            y = self.square_size * (self.snake.body[i][0][1])
+
+            if self.snake.get_body_part_dir(i-1) == 'right':
+                self.window.blit(arrow_right, (x, y))
+            elif self.snake.get_body_part_dir(i-1) == 'left':
+                self.window.blit(arrow_left, (x, y))
+            elif self.snake.get_body_part_dir(i-1) == 'up':
+                self.window.blit(arrow_up, (x, y))
+            elif self.snake.get_body_part_dir(i-1) == 'down':
+                self.window.blit(arrow_down, (x, y))
+
+            # if i == 0:
+            #     pygame.draw.rect(self.window, 'blue', [x, y, self.square_size, self.square_size])
+            # else:
+            #     pygame.draw.rect(self.window, 'green', [x, y, self.square_size, self.square_size])
 
         # draw grid
-        for i in range(1, self.board_dim):
-            pygame.draw.line(self.window, 'white', [self.square_size * i, 0], [self.square_size * i, self.y_max],
-                             self.grid_width)
-            pygame.draw.line(self.window, 'white', [0, self.square_size * i], [self.x_max, self.square_size * i],
-                             self.grid_width)
+        # for i in range(1, self.board_dim):
+        #     pygame.draw.line(self.window, 'white', [self.square_size * i, 0], [self.square_size * i, self.y_max],
+        #                      self.grid_width)
+        #     pygame.draw.line(self.window, 'white', [0, self.square_size * i], [self.x_max, self.square_size * i],
+        #                      self.grid_width)
 
         if self.render_mode == "human":
             pygame.display.flip()

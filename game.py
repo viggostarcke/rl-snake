@@ -73,8 +73,17 @@ while run_game:
     # render
     screen.fill("white")
 
+    bg_block_image = pygame.image.load('.img/bg_block.jpg')
+    bg_block_image = pygame.transform.scale(bg_block_image, (square_size, square_size))
+
+    for row in range(board_dim):
+        for col in range(board_dim):
+            x = col * square_size
+            y = row * square_size
+            screen.blit(bg_block_image, (x, y))
+
     # draw apple
-    apple_image = pygame.image.load('.img/apple.png')
+    apple_image = pygame.image.load('.img/apple.jpg')
     apple_image = pygame.transform.scale(apple_image, (square_size, square_size))
 
     x = square_size * apple_coord[0]
@@ -83,28 +92,40 @@ while run_game:
     # pygame.draw.rect(screen, 'red', [x, y, square_size, square_size])
 
     # draw snake
-    head_image_path = '.img/arrow_right.png'
-    head_image = pygame.image.load(head_image_path)
-    head_image = pygame.transform.scale(head_image, (square_size, square_size))
+    arrow_left = pygame.image.load('.img/arrow_left.jpg')
+    arrow_left = pygame.transform.scale(arrow_left, (square_size, square_size))
+
+    arrow_right = pygame.image.load('.img/arrow_right.jpg')
+    arrow_right = pygame.transform.scale(arrow_right, (square_size, square_size))
+
+    arrow_up = pygame.image.load('.img/arrow_up.jpg')
+    arrow_up = pygame.transform.scale(arrow_up, (square_size, square_size))
+
+    arrow_down = pygame.image.load('.img/arrow_down.jpg')
+    arrow_down = pygame.transform.scale(arrow_down, (square_size, square_size))
 
     for i in range(snake.get_size()):
         part_x, part_y = snake.body[i][0][0], snake.body[i][0][1]
         x = square_size * (snake.body[i][0][0])
         y = square_size * (snake.body[i][0][1])
-        if i == 0:
-            screen.blit(head_image, (x, y))
-            # pygame.draw.rect(screen, 'blue', [x, y, square_size, square_size])
-        else:
-            prev_part_x, prev_part_y = snake.body[i-1][0][0], snake.body[i-1][0][1]
-            
+        if snake.get_body_part_dir(i) == 'right':
+            screen.blit(arrow_right, (x, y))
+        elif snake.get_body_part_dir(i) == 'left':
+            screen.blit(arrow_left, (x, y))
+        elif snake.get_body_part_dir(i) == 'up':
+            screen.blit(arrow_up, (x, y))
+        elif snake.get_body_part_dir(i) == 'down':
+            screen.blit(arrow_down, (x, y))
 
-            screen.blit(head_image, (x, y))
-            # pygame.draw.rect(screen, 'green', [x, y, square_size, square_size])
+        # if i == 0:
+        # #     pygame.draw.rect(screen, 'blue', [x, y, square_size, square_size])
+        # # else:
+        # #     pygame.draw.rect(screen, '#61DE2A', [x, y, square_size, square_size])
 
     # draw grid play area
-    for i in range(1, board_dim):
-        pygame.draw.line(screen, 'black', [square_size * i, 0], [square_size * i, y_max], grid_width)
-        pygame.draw.line(screen, 'black', [0, square_size * i], [x_max, square_size * i], grid_width)
+    # for i in range(1, board_dim):
+    #     pygame.draw.line(screen, 'black', [square_size * i, 0], [square_size * i, y_max], grid_width)
+    #     pygame.draw.line(screen, 'black', [0, square_size * i], [x_max, square_size * i], grid_width)
 
     pygame.display.flip()
 
