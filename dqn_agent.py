@@ -13,7 +13,7 @@ env = SnakeEnv()
 if parser.parse_args().r:
     env.render_mode = "human"  # render every game
 
-num_episodes = 200_000
+num_episodes = 300_000
 learn = False
 learn = parser.parse_args().learn
 
@@ -22,9 +22,8 @@ if learn:
     model.learn(total_timesteps=num_episodes)
     model.save("dqn_agent")
 else:
-    # Does not work properly: Snake gets stuck in loops
     model = DQN.load("dqn_agent")
-    # obs = env.reset()
+    obs = env.reset()
     for episode in range(num_episodes):
         obs, info = env.reset()
         done = False

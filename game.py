@@ -71,9 +71,9 @@ while run_game:
                 break
 
     # render
-    screen.fill("white")
+    screen.fill("black")
 
-    bg_block_image = pygame.image.load('.img/bg_block.jpg')
+    bg_block_image = pygame.image.load('.img/black_square.png')
     bg_block_image = pygame.transform.scale(bg_block_image, (square_size, square_size))
 
     for row in range(board_dim):
@@ -83,7 +83,7 @@ while run_game:
             screen.blit(bg_block_image, (x, y))
 
     # draw apple
-    apple_image = pygame.image.load('.img/apple.jpg')
+    apple_image = pygame.image.load('.img/apple.png')
     apple_image = pygame.transform.scale(apple_image, (square_size, square_size))
 
     x = square_size * apple_coord[0]
@@ -92,16 +92,16 @@ while run_game:
     # pygame.draw.rect(screen, 'red', [x, y, square_size, square_size])
 
     # draw snake
-    arrow_left = pygame.image.load('.img/arrow_left.jpg')
+    arrow_left = pygame.image.load('.img/arrow_left.png')
     arrow_left = pygame.transform.scale(arrow_left, (square_size, square_size))
 
-    arrow_right = pygame.image.load('.img/arrow_right.jpg')
+    arrow_right = pygame.image.load('.img/arrow_right.png')
     arrow_right = pygame.transform.scale(arrow_right, (square_size, square_size))
 
-    arrow_up = pygame.image.load('.img/arrow_up.jpg')
+    arrow_up = pygame.image.load('.img/arrow_up.png')
     arrow_up = pygame.transform.scale(arrow_up, (square_size, square_size))
 
-    arrow_down = pygame.image.load('.img/arrow_down.jpg')
+    arrow_down = pygame.image.load('.img/arrow_down.png')
     arrow_down = pygame.transform.scale(arrow_down, (square_size, square_size))
 
     for i in range(snake.get_size()):

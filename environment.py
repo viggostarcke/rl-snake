@@ -9,9 +9,12 @@ from gymnasium import spaces
 
 
 class SnakeEnv(gym.Env):
-    metadata = {"render_modes": ["human", "rbg_array"], "render_fps": 20}
+    metadata = {
+        "render_modes": ["human", "rbg_array"],
+        "render_fps": 20
+    }
 
-    def __init__(self, render_mode=None, size=10, prev_moves_count=10):
+    def __init__(self, render_mode=None, size=10):
         self.score = 0
         self.x_max = 600
         self.y_max = 600
@@ -20,8 +23,6 @@ class SnakeEnv(gym.Env):
         self.grid_width = 1
         self.apple_coord = (random.randint(1, self.board_dim - 1), random.randint(1, self.board_dim - 1))
         self.snake = Snake(self.board_dim)
-        self.prev_moves_count = prev_moves_count
-        self.prev_moves = [0] * prev_moves_count
 
         # from direction snake head is heading: left, right or continue
         self.action_space = spaces.Discrete(3)
@@ -37,17 +38,17 @@ class SnakeEnv(gym.Env):
         # self.observation_space = spaces.Discrete(15)
         # self.observation_space = spaces.Box(low=0, high=1, shape=(15,), dtype=np.float32)
 
-        # BOX: apple delta coords, adjacent fields
+        # BOX: apple delta coords, adjacent tiles
         # self.observation_space = spaces.Box(low=-1, high=1, shape=(5,), dtype=np.float32)
 
         # BOX: apple coords, snake head coords
         # self.observation_space = spaces.Box(low=0, high=1, shape=(4,), dtype=np.float32)
 
-        # DICT: apple coords, snake head coords, adjacent fields
+        # DICT: apple coords, snake head coords, adjacent tiles
         self.observation_space = spaces.Dict(
             {
                 'apple_direction': spaces.Discrete(8),
-                'adjacent_fields': spaces.Box(low=0, high=1, shape=(3,), dtype=int)
+                'adjacent_tiles': spaces.Box(low=0, high=1, shape=(3,), dtype=int)
             }
         )
 
@@ -121,19 +122,19 @@ class SnakeEnv(gym.Env):
     """
     retired observation getter
     """
-    # apple coords (relative to head coords), info from 3 adjacent fields
+    # apple coords (relative to head coords), info from 3 adjacent tiles
     # def _get_observation(self):
     #     # get apple delta coords
     #     apple_coords = np.array(self.apple_coord)
     #     snake_head_coords = np.array(self.snake.get_head())
     #     apple_delta = apple_coords - snake_head_coords
     #
-    #     adjacent_fields = np.array(self.get_adjacent_fields())
+    #     adjacent_tiles = np.array(self.get_adjacent_tiles())
     #
     #     # normalize apple delta
     #     apple_delta_norm = apple_delta / (self.board_dim - 1)
     #
-    #     observation = np.concatenate((apple_delta_norm, adjacent_fields))
+    #     observation = np.concatenate((apple_delta_norm, adjacent_tiles))
     #
     #     return observation
 
@@ -158,21 +159,21 @@ class SnakeEnv(gym.Env):
     def _get_observation(self):
         apple_dir = self.get_apple_dir(self.apple_coord)
         corrected_apple_dir = self.rotate(apple_dir)
-        adjacent_fields = np.array(self.get_adjacent_fields())
+        adjacent_tiles = np.array(self.get_adjacent_tiles())
 
         return {
             "apple_direction": corrected_apple_dir,
-            "adjacent_fields": adjacent_fields
+            "adjacent_tiles": adjacent_tiles
         }
 
     def _get_info(self):
         apple_dir = self.get_apple_dir(self.apple_coord)
         corrected_apple_dir = self.rotate(apple_dir)
-        adjacent_fields = np.array(self.get_adjacent_fields())
+        adjacent_tiles = np.array(self.get_adjacent_tiles())
 
         return {
             "apple_direction": corrected_apple_dir,
-            "adjacent_fields": adjacent_fields
+            "adjacent_tiles": adjacent_tiles
         }
 
     # reset snake to mid of screen, apples current coordinates and score
@@ -202,9 +203,6 @@ class SnakeEnv(gym.Env):
         self.move_head(new_dir, curr_head_pos)
         done = False
         reward = 0
-        self.prev_moves.append(action)
-        if len(self.prev_moves) > self.prev_moves_count:
-            self.prev_moves.pop(0)
 
         if self.snake.check_wall_collision(self.board_dim) or self.snake.check_self_collision():
             reward -= 500
@@ -266,9 +264,9 @@ class SnakeEnv(gym.Env):
             self.clock = pygame.time.Clock()
 
         # render
-        self.window.fill("white")
+        self.window.fill("black")
 
-        bg_block_image = pygame.image.load('.img/bg_block.jpg')
+        bg_block_image = pygame.image.load('.img/black_square.png')
         bg_block_image = pygame.transform.scale(bg_block_image, (self.square_size, self.square_size))
 
         for row in range(self.board_dim):
@@ -278,7 +276,7 @@ class SnakeEnv(gym.Env):
                 self.window.blit(bg_block_image, (x, y))
 
         # draw apple
-        apple_image = pygame.image.load('.img/apple.jpg')
+        apple_image = pygame.image.load('.img/apple.png')
         apple_image = pygame.transform.scale(apple_image, (self.square_size, self.square_size))
 
         x = self.square_size * self.apple_coord[0]
@@ -287,16 +285,16 @@ class SnakeEnv(gym.Env):
         # pygame.draw.rect(self.window, 'red', [x, y, self.square_size, self.square_size])
 
         # draw snake
-        arrow_left = pygame.image.load('.img/arrow_left.jpg')
+        arrow_left = pygame.image.load('.img/arrow_left.png')
         arrow_left = pygame.transform.scale(arrow_left, (self.square_size, self.square_size))
 
-        arrow_right = pygame.image.load('.img/arrow_right.jpg')
+        arrow_right = pygame.image.load('.img/arrow_right.png')
         arrow_right = pygame.transform.scale(arrow_right, (self.square_size, self.square_size))
 
-        arrow_up = pygame.image.load('.img/arrow_up.jpg')
+        arrow_up = pygame.image.load('.img/arrow_up.png')
         arrow_up = pygame.transform.scale(arrow_up, (self.square_size, self.square_size))
 
-        arrow_down = pygame.image.load('.img/arrow_down.jpg')
+        arrow_down = pygame.image.load('.img/arrow_down.png')
         arrow_down = pygame.transform.scale(arrow_down, (self.square_size, self.square_size))
 
         for i in range(self.snake.get_size()):
@@ -366,7 +364,7 @@ class SnakeEnv(gym.Env):
             # apple northeast of snake head
             return 7
         else:
-            # apple and snake head same field
+            # apple and snake head same tile
             return 8
 
     # rotates get_apple_dir to fit snakes direction
@@ -380,27 +378,27 @@ class SnakeEnv(gym.Env):
             return (compass_dir + 2) % 8
         return compass_dir
 
-    def get_adjacent_fields(self):
+    def get_adjacent_tiles(self):
         snake_head_pos = np.array(self.snake.get_head())
         snake_head_dir = self.snake.get_dir()
-        fields = [0, 0, 0]
-        adjacent_fields = {
+        tiles = [0, 0, 0]
+        adjacent_tiles = {
             'left': snake_head_pos + np.array([-1, 0]),
             'right': snake_head_pos + np.array([1, 0]),
             'up': snake_head_pos + np.array([0, -1]),
             'down': snake_head_pos + np.array([0, 1])
         }
-        fields_to_look = self._action_to_dir[snake_head_dir].values()
-        adjacent_fields = [adjacent_fields[field] for field in fields_to_look]
-        assert len(adjacent_fields) == 3
+        tiles_to_look = self._action_to_dir[snake_head_dir].values()
+        adjacent_tiles = [adjacent_tiles[tile] for tile in tiles_to_look]
+        assert len(adjacent_tiles) == 3
 
-        for i, field in enumerate(adjacent_fields):
-            if field[0] < 0 or field[0] == self.board_dim or field[1] < 0 or field[1] == self.board_dim:
-                fields[i] = 1
-            elif self.snake.check_apple_eat(field):  # reusing code for apple eat check (i.e. if field is in body)
-                fields[i] = 1
+        for i, tile in enumerate(adjacent_tiles):
+            if tile[0] < 0 or tile[0] == self.board_dim or tile[1] < 0 or tile[1] == self.board_dim:
+                tiles[i] = 1
+            elif self.snake.check_apple_eat(tile):  # reusing code for apple eat check (i.e. if tile is in body)
+                tiles[i] = 1
 
-        return fields
+        return tiles
 
     def get_manhattan_dist(self, coords1, coords2):
         return abs(coords1[0] - coords2[0]) + abs(coords1[1] - coords2[1])

@@ -27,6 +27,9 @@ class Snake:
         else:
             return self.body[i][1]
 
+    def get_neighbours(self, tile):
+        pass
+
     def get_size(self):
         return len(self.body)
 
