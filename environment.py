@@ -20,37 +20,27 @@ class SnakeEnv(gym.Env):
         self.y_max = 600
         self.board_dim = size
         self.square_size = math.floor(self.x_max / self.board_dim)
-        self.grid_width = 1
         self.apple_coord = (random.randint(1, self.board_dim - 1), random.randint(1, self.board_dim - 1))
         self.snake = Snake(self.board_dim)
 
         # from direction snake head is heading: left, right or continue
         self.action_space = spaces.Discrete(3)
-        # 0: left, 1: right, 2: up, 3: down
-        # self.action_space = spaces.Discrete(4)
 
-        # BOX: apple coords, snake head coords, 10 prev moves
-        # prev_moves_count = 10
-        # self.observation_space = spaces.Box(
-        #     low=np.array([0, 0, 0, 0, 0] + [0] * prev_moves_count),
-        #     high=np.array([1, 1, 1, 1, 1] + [1] * prev_moves_count),
-        #     dtype=np.float32)
-        # self.observation_space = spaces.Discrete(15)
-        # self.observation_space = spaces.Box(low=0, high=1, shape=(15,), dtype=np.float32)
-
-        # BOX: apple delta coords, adjacent tiles
-        # self.observation_space = spaces.Box(low=-1, high=1, shape=(5,), dtype=np.float32)
-
-        # BOX: apple coords, snake head coords
-        # self.observation_space = spaces.Box(low=0, high=1, shape=(4,), dtype=np.float32)
-
-        # DICT: apple coords, snake head coords, adjacent tiles
+        # DICT: apple compass dir & 3 adjacent tiles
         self.observation_space = spaces.Dict(
             {
                 'apple_direction': spaces.Discrete(8),
                 'adjacent_tiles': spaces.Box(low=0, high=1, shape=(3,), dtype=int)
             }
         )
+
+        # DICT: apple compass dir & 3x3 adjacent tiles grid
+        # self.observation_space = spaces.Dict(
+        #     {
+        #         'apple_direction': spaces.Discrete(8),
+        #         'adjacent_tiles': spaces.Box(low=0, high=1, shape=(3, 3), dtype=np.float32)
+        #     }
+        # )
 
         # 0: left, 1: continue, 2: right
         self._action_to_dir = {
@@ -79,86 +69,9 @@ class SnakeEnv(gym.Env):
         self.window = None
         self.clock = None
 
-    """
-    retired observation getter
-    """
-    # apple x, apple y, snake head x, snake head y, snake length, prev moves
-    # def _get_observation(self):
-    #     apple_x, apple_y = self.apple_coord
-    #     snake_head_x, snake_head_y = self.snake.get_head()
-    #     snake_size = self.snake.get_size()
-    #     prev_moves = self.get_prev_moves()
-    #     padding = [-1] * (self.prev_moves_count - len(prev_moves))
-    #     prev_moves.extend(padding)
-    #
-    #     # normalize apple coords
-    #     apple_x_norm = apple_x / (self.board_dim - 1)
-    #     apple_y_norm = apple_y / (self.board_dim - 1)
-    #
-    #     # normalize snake head coords
-    #     snake_head_x_norm = snake_head_x / (self.board_dim - 1)
-    #     snake_head_y_norm = snake_head_y / (self.board_dim - 1)
-    #
-    #     # normalize snake size
-    #     snake_size_norm = snake_size / self.board_dim
-    #
-    #     # normalize prev moves
-    #     # 0.1: left
-    #     # 0.2: continue
-    #     # 0.3: right
-    #     # 1.0: padding
-    #     prev_moves_norm = [(move + 1) / self.board_dim if move != -1 else 1.0 for move in prev_moves]
-    #
-    #     observation = np.array([
-    #                                apple_x_norm,
-    #                                apple_y_norm,
-    #                                snake_head_x_norm,
-    #                                snake_head_y_norm,
-    #                                snake_size_norm]
-    #                            + prev_moves_norm, dtype=np.float32)
-    #
-    #     return observation
-
-    """
-    retired observation getter
-    """
-    # apple coords (relative to head coords), info from 3 adjacent tiles
-    # def _get_observation(self):
-    #     # get apple delta coords
-    #     apple_coords = np.array(self.apple_coord)
-    #     snake_head_coords = np.array(self.snake.get_head())
-    #     apple_delta = apple_coords - snake_head_coords
-    #
-    #     adjacent_tiles = np.array(self.get_adjacent_tiles())
-    #
-    #     # normalize apple delta
-    #     apple_delta_norm = apple_delta / (self.board_dim - 1)
-    #
-    #     observation = np.concatenate((apple_delta_norm, adjacent_tiles))
-    #
-    #     return observation
-
-    """
-    retired observation getter
-    """
-    # apple coords, snake head coords
-    # def _get_observation(self):
-    #     # get apple coords
-    #     apple_coords = np.array(self.apple_coord)
-    #     # normalize apple coords
-    #     apple_coords_norm = apple_coords / (self.board_dim - 1)
-    #     # get snake head coords
-    #     snake_head_coords = np.array(self.snake.get_head())
-    #     # normalize snake head coords
-    #     snake_head_coords_norm = snake_head_coords / (self.board_dim - 1)
-    #
-    #     observation = np.concatenate((apple_coords_norm, snake_head_coords_norm))
-    #
-    #     return observation
-
     def _get_observation(self):
         apple_dir = self.get_apple_dir(self.apple_coord)
-        corrected_apple_dir = self.rotate(apple_dir)
+        corrected_apple_dir = self.rotate_apple_dir(apple_dir)
         adjacent_tiles = np.array(self.get_adjacent_tiles())
 
         return {
@@ -168,7 +81,7 @@ class SnakeEnv(gym.Env):
 
     def _get_info(self):
         apple_dir = self.get_apple_dir(self.apple_coord)
-        corrected_apple_dir = self.rotate(apple_dir)
+        corrected_apple_dir = self.rotate_apple_dir(apple_dir)
         adjacent_tiles = np.array(self.get_adjacent_tiles())
 
         return {
@@ -205,7 +118,7 @@ class SnakeEnv(gym.Env):
         reward = 0
 
         if self.snake.check_wall_collision(self.board_dim) or self.snake.check_self_collision():
-            reward -= 500
+            reward -= 1000
             self.reset_apple()
             done = True
         else:
@@ -214,10 +127,11 @@ class SnakeEnv(gym.Env):
                 self.score += 1
                 # reward += 100
                 manhattan_dist = self.get_manhattan_dist(curr_head_pos, self.apple_coord)
-                reward += int(manhattan_dist) * 100
+                # print("head_pos: {}, ".format(curr_head_pos) + "apple: {}, ".format(self.apple_coord) + "MD: {}".format(manhattan_dist))
+                reward += int(manhattan_dist) * 200
                 self.reset_apple()
             else:
-                reward -= 5
+                reward -= 1
 
         if self.render_mode == "human":
             self._render_frame()
@@ -301,26 +215,14 @@ class SnakeEnv(gym.Env):
             x = self.square_size * (self.snake.body[i][0][0])
             y = self.square_size * (self.snake.body[i][0][1])
 
-            if self.snake.get_body_part_dir(i-1) == 'right':
+            if self.snake.get_body_part_dir(i) == 'right':
                 self.window.blit(arrow_right, (x, y))
-            elif self.snake.get_body_part_dir(i-1) == 'left':
+            elif self.snake.get_body_part_dir(i) == 'left':
                 self.window.blit(arrow_left, (x, y))
-            elif self.snake.get_body_part_dir(i-1) == 'up':
+            elif self.snake.get_body_part_dir(i) == 'up':
                 self.window.blit(arrow_up, (x, y))
-            elif self.snake.get_body_part_dir(i-1) == 'down':
+            elif self.snake.get_body_part_dir(i) == 'down':
                 self.window.blit(arrow_down, (x, y))
-
-            # if i == 0:
-            #     pygame.draw.rect(self.window, 'blue', [x, y, self.square_size, self.square_size])
-            # else:
-            #     pygame.draw.rect(self.window, 'green', [x, y, self.square_size, self.square_size])
-
-        # draw grid
-        # for i in range(1, self.board_dim):
-        #     pygame.draw.line(self.window, 'white', [self.square_size * i, 0], [self.square_size * i, self.y_max],
-        #                      self.grid_width)
-        #     pygame.draw.line(self.window, 'white', [0, self.square_size * i], [self.x_max, self.square_size * i],
-        #                      self.grid_width)
 
         if self.render_mode == "human":
             pygame.display.flip()
@@ -368,7 +270,7 @@ class SnakeEnv(gym.Env):
             return 8
 
     # rotates get_apple_dir to fit snakes direction
-    def rotate(self, compass_dir):
+    def rotate_apple_dir(self, compass_dir):
         snake_dir = self.snake.get_dir()
         if snake_dir == 'left':
             return (compass_dir + 6) % 8
@@ -399,6 +301,37 @@ class SnakeEnv(gym.Env):
                 tiles[i] = 1
 
         return tiles
+
+    # def get_adjacent_tiles(self):
+    #     grid_size = 3
+    #     grid = np.zeros((grid_size, grid_size), dtype=np.int8)
+    #     snake_head_x, snake_head_y = self.snake.get_head()
+    #
+    #     for i in range(-1, 2):
+    #         for j in range(-1, 2):
+    #             pos_x, pos_y = snake_head_x + i, snake_head_y + j
+    #             if pos_x < 0 or pos_x >= self.board_dim or pos_y < 0 or pos_y >= self.board_dim:
+    #                 grid[i + 1, j + 1] = 0.9  # wall
+    #             elif (pos_x, pos_y) in self.snake.get_body_coords():
+    #                 grid[i + 1, j + 1] = 0.6  # body
+    #             elif (pos_x, pos_y) == self.apple_coord:
+    #                 grid[i + 1, j + 1] = 0.3  # apple
+    #
+    #     return grid
+    #
+    # # rotates get_adjacent_tiles to fit snakes direction
+    # def rotate_adjacent_tiles(self, grid):
+    #     rotations = {
+    #         'left': 1,
+    #         'down': 2,
+    #         'right': 3
+    #     }
+    #
+    #     num_rotations = rotations.get(self.snake.get_dir(), 0)
+    #
+    #     rotated_grid = np.rot90(grid, k=num_rotations)
+    #
+    #     return rotated_grid
 
     def get_manhattan_dist(self, coords1, coords2):
         return abs(coords1[0] - coords2[0]) + abs(coords1[1] - coords2[1])

@@ -3,11 +3,12 @@ import numpy as np
 
 class Snake:
     def __init__(self, board_dim):
-        head_start_pos = (board_dim - 7, board_dim - 4)
+        # head_start_pos = (board_dim - 7, board_dim - 4)
+        head_start_pos_upper_right = (0, 0)
         self.body = [
-            [head_start_pos, 'right'],
-            [(head_start_pos[0] - 1, head_start_pos[1]), 'right'],
-            [(head_start_pos[0] - 2, head_start_pos[1]), 'right']
+            [head_start_pos_upper_right, 'right'],
+            # [(head_start_pos[0] - 1, head_start_pos[1]), 'right'],
+            # [(head_start_pos[0] - 2, head_start_pos[1]), 'right']
         ]
         # self.body tracks both the position and direction of each part of the snake body
 
@@ -25,10 +26,13 @@ class Snake:
         if i < 0 or i > len(self.body):
             return None
         else:
-            return self.body[i][1]
+            if i == 0:
+                return self.body[i][1]
+            else:
+                return self.body[i-1][1]
 
-    def get_neighbours(self, tile):
-        pass
+    def get_body_coords(self):
+        return [part[0] for part in self.body]
 
     def get_size(self):
         return len(self.body)
@@ -76,12 +80,12 @@ class Snake:
         return False
 
     def reset(self, board_dim):
-        head_start_pos = (board_dim - 7, board_dim - 4)
+        # head_start_pos = (board_dim - 7, board_dim - 4)
         head_start_pos_upper_right = (0, 0)
         self.body = [
-            [head_start_pos, 'right'],
-            [(head_start_pos[0] - 1, head_start_pos[1]), 'right'],
-            [(head_start_pos[0] - 2, head_start_pos[1]), 'right']
+            [head_start_pos_upper_right, 'right'],
+            # [(head_start_pos[0] - 1, head_start_pos[1]), 'right'],
+            # [(head_start_pos[0] - 2, head_start_pos[1]), 'right']
         ]
 
     def check_wall_collision(self, board_dim):

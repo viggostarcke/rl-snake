@@ -105,16 +105,16 @@ while run_game:
     arrow_down = pygame.transform.scale(arrow_down, (square_size, square_size))
 
     for i in range(snake.get_size()):
-        part_x, part_y = snake.body[i][0][0], snake.body[i][0][1]
         x = square_size * (snake.body[i][0][0])
         y = square_size * (snake.body[i][0][1])
-        if snake.get_body_part_dir(i) == 'right':
+
+        if snake.get_body_part_dir(i+1) == 'right':
             screen.blit(arrow_right, (x, y))
-        elif snake.get_body_part_dir(i) == 'left':
+        elif snake.get_body_part_dir(i+1) == 'left':
             screen.blit(arrow_left, (x, y))
-        elif snake.get_body_part_dir(i) == 'up':
+        elif snake.get_body_part_dir(i+1) == 'up':
             screen.blit(arrow_up, (x, y))
-        elif snake.get_body_part_dir(i) == 'down':
+        elif snake.get_body_part_dir(i+1) == 'down':
             screen.blit(arrow_down, (x, y))
 
         # if i == 0:

@@ -18,7 +18,7 @@ learn = False
 learn = parser.parse_args().learn
 
 if learn:
-    model = DQN("MultiInputPolicy", env, verbose=1)
+    model = DQN("MultiInputPolicy", env, verbose=1, learning_rate=1e-4, gamma=0.99, buffer_size=1_000_000, batch_size=128)
     model.learn(total_timesteps=num_episodes)
     model.save("dqn_agent")
 else:
