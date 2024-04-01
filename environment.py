@@ -97,7 +97,7 @@ class SnakeEnv(gym.Env):
         self.snake.reset(self.board_dim)
         self.score = 0
         self.reset_apple()
-        # self.snake_head_positions = []
+        self.hunger = 0
         observation = self._get_observation()
         # info = self._get_info()
         info = {}
@@ -123,11 +123,11 @@ class SnakeEnv(gym.Env):
         reward = 0
 
         if self.snake.check_wall_collision(self.board_dim) or self.snake.check_self_collision():
-            reward -= 200
+            reward -= 100
             self.reset_apple()
             done = True
         elif self.hunger >= self.stamina:
-            reward -= 200
+            reward -= 100
             done = True
         else:
             if self.snake.check_apple_eat(self.apple_coord):
