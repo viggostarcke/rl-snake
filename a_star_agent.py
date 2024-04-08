@@ -22,10 +22,11 @@ snake = Snake(board_dim)
 run_game = True
 
 
-def get_neighbours():
+def get_neighbours(current):
     """
-    get neighbours for the current snake head position considering game constraints
+    get valid neighbours for the given tile considering game constraints
 
+    :param current: current node getting
     :return: list of tuples consisting of all the valid tiles snakes head can move to
     """
 
@@ -33,7 +34,7 @@ def get_neighbours():
     directions = [('up', (0, -1)), ('down', (0, 1)), ('left', (-1, 0)), ('right', (1, 0))]
 
     for direction, (dx, dy) in directions:
-        neighbour = (snake.get_head()[0] + dx, snake.get_head()[1] + dy)
+        neighbour = (current[0] + dx, current[1] + dy)
 
         if 0 <= neighbour[0] < board_dim and 0 <= neighbour[1] < board_dim:
             if neighbour not in [part[0] for part in snake.body[:-1]]:
@@ -44,25 +45,43 @@ def get_neighbours():
 
 def heuristic(a, b):
     """
-    get heuristic value from snake head to apple as the Manhattan distance between them
+    get heuristic value from given tile to apple as the Manhattan distance between the two
 
-    :param a: snake head coords
+    :param a: tile coords
     :param b: apple coords
     :return: manhattan distance between the two as int
     """
 
     return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
+def coord_to_dir(coord):
+    """
 
-def a_star():
-    start = snake.get_head()
-    goal = apple_coord
+    :param next_step:
+    :return:
+    """
+
+    dx = coord[0] - snake.get_head()[0]
+    dy = coord[1] - snake.get_head()[1]
+
+    if dx == 1:
+        return 'right'
+    elif dx == -1:
+        return 'left'
+    elif dy == 1:
+        return 'down'
+    elif dy == -1:
+        return 'up'
+    else:
+        print("no valid coord_to_dir")
+        return None
+
+
+def a_star(start, goal):
     frontier = PriorityQueue()
     frontier.put((0, start))
-    came_from = {}
-    cost_so_far = {}
-    came_from[start] = None
-    cost_so_far[start] = 0
+    came_from = {start: None}
+    cost_so_far = {start: 0}
 
     while not frontier.empty():
         current = frontier.get()[1]
@@ -70,42 +89,33 @@ def a_star():
         if current == apple_coord:
             break
 
-        for next_node in get_neighbours():
+        for next_node in get_neighbours(current):
             new_cost = cost_so_far[current] + 1
             if next_node not in cost_so_far or new_cost < cost_so_far[next_node]:
                 cost_so_far[next_node] = new_cost
-                priority = new_cost + heuristic(goal, next_node)
+                priority = new_cost + heuristic(next_node, goal)
                 frontier.put((priority, next_node))
                 came_from[next_node] = current
 
-    print(came_from)
-    if goal not in came_from:
-        return 'right'
+        if goal in came_from:
+            path = []
+            current = goal
+            while current != start:
+                path.append(current)
+                current = came_from[current]
+            path.append(start)
+            path.reverse()
 
-    curr = goal
-    path = []
-    while curr != start:
-        path.append(curr)
-        curr = came_from[curr]
-    path.reverse()
-
-    if len(path) > 0:
-        next_step = path[0]
-        if next_step[0] > start[0]:
-            return 'right'
-        elif next_step[0] < start[0]:
-            return 'left'
-        elif next_step[1] > start[1]:
-            return 'down'
-        elif next_step[1] < start[1]:
-            return 'up'
-    return 'right'  # default direction if no path is found
-
+            if len(path) > 1:
+                return path[1]
+            else:
+                return path[0]
 
 while run_game:
     clock.tick(speed)
 
-    next_dir = a_star()
+    next_step = a_star(snake.get_head(), apple_coord)
+    next_dir = coord_to_dir(next_step)
     snake.set_dir(next_dir)
 
     snake.move()  # Move body, not head
