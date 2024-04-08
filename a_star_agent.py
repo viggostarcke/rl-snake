@@ -13,7 +13,7 @@ x_max = 600
 y_max = 600
 board_dim = 10
 square_size = math.floor(x_max / board_dim)
-speed = 100
+speed = 60
 apple_coord = (random.randint(1, board_dim - 1), random.randint(1, board_dim - 1))
 size = (x_max, y_max)
 screen = pygame.display.set_mode(size)
@@ -78,6 +78,25 @@ def coord_to_dir(coord):
         return None
 
 
+def is_move_safe(head, move, snake_body, depth=10):
+    new_head = (head[0] + move[0], head[1] + move[1])
+
+    if not (0 <= new_head[0] < board_dim and 0 <= new_head[1] < board_dim):
+        return False
+    if new_head in snake_body:
+        return False
+
+    if depth == 0:
+        return True
+
+    for next_move in get_neighbours(new_head):
+        if next_move != head:
+            if not is_move_safe(new_head, (next_move[0] - new_head[0], next_move[1] - new_head[1]), snake_body[:-1] + [new_head], depth - 1):
+                return False
+
+    return True
+
+
 def a_star(start, goal):
     frontier = PriorityQueue()
     frontier.put((0, start))
@@ -107,16 +126,34 @@ def a_star(start, goal):
             path.append(start)
             path.reverse()
 
-            if len(path) > 1:
-                return path[1]
-            else:
-                return path[0]
+            return path
+            # if len(path) > 1:
+            #     return path[1]
+            # else:
+            #     return path[0]
+
+
+def find_next_move(start, goal, snake_body):
+    path = a_star(start, goal)
+    if path is not None:
+        return path
+
+    safe_moves = []
+    for move in get_neighbours(start):
+        if is_move_safe(start, (move[0] - start[0], move[1] - start[1]), snake_body):
+            safe_moves.append(move)
+
+    if safe_moves:
+        return [max(safe_moves, key=lambda m: heuristic(m, goal))]
+
+    return None
+
 
 while run_game:
     clock.tick(speed)
 
-    next_step = a_star(snake.get_head(), apple_coord)
-    if next_step is None:
+    path = find_next_move(snake.get_head(), apple_coord, snake.body)
+    if path is None:
         print("Score: {}".format(score))
         snake.reset(board_dim)
         while True:
@@ -125,6 +162,8 @@ while run_game:
                 break
         score = 0
         continue
+
+    next_step = path[1] if(len(path) > 1) else path[0]
 
     next_dir = coord_to_dir(next_step)
     snake.set_dir(next_dir)
