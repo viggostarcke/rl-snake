@@ -11,7 +11,6 @@ x_max = 600
 y_max = 600
 board_dim = 10
 square_size = math.floor(x_max / board_dim)
-grid_width = 1
 speed = 10
 apple_coord = (random.randint(1, board_dim - 1), random.randint(1, board_dim - 1))
 size = (x_max, y_max)
@@ -108,24 +107,14 @@ while run_game:
         x = square_size * (snake.body[i][0][0])
         y = square_size * (snake.body[i][0][1])
 
-        if snake.get_body_part_dir(i+1) == 'right':
+        if snake.get_body_part_dir(i + 1) == 'right':
             screen.blit(arrow_right, (x, y))
-        elif snake.get_body_part_dir(i+1) == 'left':
+        elif snake.get_body_part_dir(i + 1) == 'left':
             screen.blit(arrow_left, (x, y))
-        elif snake.get_body_part_dir(i+1) == 'up':
+        elif snake.get_body_part_dir(i + 1) == 'up':
             screen.blit(arrow_up, (x, y))
-        elif snake.get_body_part_dir(i+1) == 'down':
+        elif snake.get_body_part_dir(i + 1) == 'down':
             screen.blit(arrow_down, (x, y))
-
-        # if i == 0:
-        # #     pygame.draw.rect(screen, 'blue', [x, y, square_size, square_size])
-        # # else:
-        # #     pygame.draw.rect(screen, '#61DE2A', [x, y, square_size, square_size])
-
-    # draw grid play area
-    # for i in range(1, board_dim):
-    #     pygame.draw.line(screen, 'black', [square_size * i, 0], [square_size * i, y_max], grid_width)
-    #     pygame.draw.line(screen, 'black', [0, square_size * i], [x_max, square_size * i], grid_width)
 
     pygame.display.flip()
 
