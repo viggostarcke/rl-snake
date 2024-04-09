@@ -19,19 +19,19 @@ Stable-Baselines3: `pip install stable-baselines3`
 - [ppo_agent.py](https://github.com/viggostarcke/rl-snake/blob/main/ppo_agent.py): A standard stable-baselines3 PPO implementation of a game agent.
 - [a_star_agent.py](https://github.com/viggostarcke/rl-snake/blob/main/a_star_agent.py): 
 
-### Environment Overview
-**Action space:** \
+## Environment Overview
+### Action space
 **0-2:** Turn left, continue path, turn right.\
 
-**Observation space:**
+### Observation space:
 - **compass_distances:** 8 element array that describes the distance to nearest object and apple in each compass direction. Each element holds a tuple containing (distance to nearest obstacle, distance to apple). If there is no apple in that direction it holds a standard value of 0.
 - **adjacent_tiles:** 3 element array that describes the 3 available surrounding tiles around the snake's head. 0 = tile contains obstacle which will lead to a collision, 0.5 = tile contains apple, 1 = tile either contains nothing.
 
-**Hunger:** \
+### Hunger:
 A countdown, which essentially limits the total amount of moves without obtaining an apple to the total amount of tiles on the board.
 This discourages getting stuck in endless loops and local maxima.
 
-**Reward function:**
+### Reward function:
 - **-1000:** For an action that results in collision with the wall or snake's body, or reaches the hunger limit (100 moves with no apple).
 - **-1:** For an action that neither results in obtaining an apple nor results in a collision with the wall, snake's body or reaching the hunger limit.
 - **+100:** For an action that results in obtaining an apple.
