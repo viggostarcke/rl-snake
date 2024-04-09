@@ -21,7 +21,7 @@ Stable-Baselines3: `pip install stable-baselines3`
 
 ### Observation space:
 - **compass_distances:** 8 element array that describes the distance to nearest object and apple in each compass direction. Each element holds a tuple containing (distance to nearest obstacle, distance to apple). If there is no apple in that direction it holds a standard value of 0.
-- **adjacent_tiles:** 3 element array that describes the 3 available surrounding tiles around the snake's head. 0 = tile contains obstacle which will lead to a collision, 0.5 = tile contains apple, 1 = tile either contains nothing.
+- **adjacent_tiles:** 3 element array that describes the 3 immediate surrounding tiles around the snake's head. 0 = tile contains obstacle which will lead to a collision, 0.5 = tile contains apple, 1 = tile either contains nothing.
 
 ### Hunger:
 A countdown, which essentially limits the total amount of moves without obtaining an apple to the total amount of tiles on the board.
