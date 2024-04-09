@@ -7,7 +7,11 @@ from wandb.integration.sb3 import WandbCallback
 
 parser = argparse.ArgumentParser(description='Learning')
 parser.add_argument('--learn', default=False, action='store_true')
+parser.add_argument('--render', default=False, action='store_true')
+parser.add_argument('--test', default=False, action='store_true')
+parser.add_argument('-l', default=False, action='store_true')
 parser.add_argument('-r', default=False, action='store_true')
+parser.add_argument('-t', default=False, action='store_true')
 
 # wandb.init(
 #     project="SnakeEnv",
@@ -24,12 +28,12 @@ parser.add_argument('-r', default=False, action='store_true')
 
 env = SnakeEnv()
 
-if parser.parse_args().r:
+if parser.parse_args().r or parser.parse_args().render:
     env.render_mode = "human"  # render every game
+learn = True if parser.parse_args().learn or parser.parse_args().l else False
+test = True if parser.parse_args().test or parser.parse_args().t else False
 
-num_episodes = 200_000
-learn = False
-learn = parser.parse_args().learn
+num_episodes = 500_000
 
 if learn:
     # model = DQN(
@@ -96,7 +100,7 @@ if learn:
     #     # Final model save
     # model.save("dqn_agent")
     # wandb.save("dqn_agent")
-else:
+if test:
     model = DQN.load("dqn_agent")
     obs = env.reset()
     for episode in range(num_episodes):
