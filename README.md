@@ -1,32 +1,44 @@
 # Bachelor Thesis 2024 Project: Learning to Play Snake with RL
-My WIP repo for my bachelor's thesis project on RL.\
+
+## Dependencies
 Following libraries should be installed as **dependencies** to run everything in this repo\
 PyGame: `pip install pygame`\
 Gymnasium: `pip install gymnasium`\
 PyTorch: `pip install torch`\
 Stable-Baselines3: `pip install stable-baselines3`
 
-# Repo Overview
+## Repo Overview
 - [snake.py](https://github.com/viggostarcke/rl-snake/blob/main/snake.py): Holds attributes describing the snakes body aswell as position and functions to check for collisions.
 - [game.py](https://github.com/viggostarcke/rl-snake/blob/main/game.py): PyGame implementation to play the game manually. Run `python game.py` to play the game.
 - [environment.py](https://github.com/viggostarcke/rl-snake/blob/main/environment.py): Custom environment which follows OpenAI's Gymnasium framework structure.\
-The snake is rendered with a blue head, while the rest of the body is green.\
 *Action space* is set to a discrete 3. Turn left, turn right or continue path.\
-*Observation space* is set to an array of length 5 and a futher default of 10 extra elements. The first 5 elements describe the apples x and y, the snakes head x and y and the length of the snakes body. The 10 further elements describe the 10 last previous moves the snake took.\
+*Observation space* is a dictionary of 2 arrays: Relevant distances in each compass direction, and information of the 3 immediate adjacent tiles.\
 *reset()*-function resets the snake position to the middle of the game grid, aswell as the apples position and the score.\
-*step()*-function moves the snake and then checks for collisions or if the apple has been eaten.
-- [dqn_agent.py](https://github.com/viggostarcke/rl-snake/blob/main/dqn_agent.py): The snake agent that uses standard stable-baselines3 DQN to learn how to make decisions. Configure render mode and learning inside file.
-- [ppo_agent.py](https://github.com/viggostarcke/rl-snake/blob/main/ppo_agent.py): ***Not implemented properly yet***: The snake agent that uses standard stable-baselines3 PPO to learn how to make decisions.
+*step()*-function moves the snake and then checks for collisions with either obstacles or apple; and rewards accordingly.
+- [dqn_agent.py](https://github.com/viggostarcke/rl-snake/blob/main/dqn_agent.py): A standard stable-baselines3 DQN implementation of a game agent.
+- [ppo_agent.py](https://github.com/viggostarcke/rl-snake/blob/main/ppo_agent.py): A standard stable-baselines3 PPO implementation of a game agent.
+- [a_star_agent.py](https://github.com/viggostarcke/rl-snake/blob/main/a_star_agent.py): 
 
-# Instructions
-Run the agents, and pass them optional arguments `-r` and `--learn`.\
-`--learn`: runs sb3 *.learn* method and saves the model in a file `dqn_agent.zip` or `ppo_agent.zip`\
-`-r`: renders every game\
-Running the agent without `--learn` argument runs the saved model.\
-ex: `python .\dqn_agent.py -r --learn`
+### Environment Overview
+**Action space:** \
+**0-2:** Turn left, continue path, turn right.\
 
-# Issues
-**DQN**:
-- *DQN.learn* works properly. The learning however is abit tame, and the snake never reaches later stages in game.
-  ![image](https://github.com/viggostarcke/rl-snake/assets/94063609/03fff84e-acab-42ac-85c0-f7546b6e1b9d)\
-  *sc of key indicators for a learning run of roughly 1,000,000 timesteps.*
+**Observation space:**
+- **compass_distances:** 8 element array that describes the distance to nearest object and apple in each compass direction. Each element holds a tuple containing (distance to nearest obstacle, distance to apple). If there is no apple in that direction it holds a standard value of 0.
+- **adjacent_tiles:** 3 element array that describes the 3 available surrounding tiles around the snake's head. 0 = tile contains obstacle which will lead to a collision, 0.5 = tile contains apple, 1 = tile either contains nothing.
+
+**Hunger:** \
+A countdown, which essentially limits the total amount of moves without obtaining an apple to the total amount of tiles on the board.
+This discourages getting stuck in endless loops and local maxima.
+
+**Reward function:**
+- **-1000:** For an action that results in collision with the wall or snake's body, or reaches the hunger limit (100 moves with no apple).
+- **-1:** For an action that neither results in obtaining an apple nor results in a collision with the wall, snake's body or reaching the hunger limit.
+- **+100:** For an action that results in obtaining an apple.
+
+## Instructions
+Run an agent, and pass arguments:\
+`--learn` (`-l`): Runs sb3 *.learn* method and saves the model in a file `dqn_agent.zip` or `ppo_agent.zip`.\
+`--test` (`-t`): Runs the saved model.\
+`-render` (`-r`): Renders every game.\
+ex: `python .\dqn_agent.py --test -r` (runs the saved DQN model and renders every game.)
