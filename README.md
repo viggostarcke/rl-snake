@@ -13,7 +13,7 @@ Stable-Baselines3: `pip install stable-baselines3`
 - [environment.py](https://github.com/viggostarcke/rl-snake/blob/main/environment.py): Custom environment which follows OpenAI's Gymnasium framework structure.
 - [dqn_agent.py](https://github.com/viggostarcke/rl-snake/blob/main/dqn_agent.py): A standard stable-baselines3 DQN implementation of a game agent.
 - [ppo_agent.py](https://github.com/viggostarcke/rl-snake/blob/main/ppo_agent.py): A standard stable-baselines3 PPO implementation of a game agent.
-- [a_star_agent.py](https://github.com/viggostarcke/rl-snake/blob/main/a_star_agent.py): 
+- [a_star_agent.py](https://github.com/viggostarcke/rl-snake/blob/main/a_star_agent.py): A* implementation to snake environment.
 
 ## Environment Overview
 ### Action space
@@ -33,6 +33,9 @@ This discourages getting stuck in endless loops and local maxima.
 - **+100:** For an action that results in obtaining an apple.
 
 ## Instructions
+Run the game to play it manually: `python .\game.py`\
+Run the game to see the A* agent play it: `python .\a_star_agent.py`
+
 Run an agent, and pass arguments:\
 `--learn` (`-l`): Runs sb3 *.learn* method and saves the model in a file `dqn_agent.zip` or `ppo_agent.zip`.\
 `--test` (`-t`): Runs the saved model.\
