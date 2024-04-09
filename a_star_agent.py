@@ -13,7 +13,7 @@ x_max = 600
 y_max = 600
 board_dim = 10
 square_size = math.floor(x_max / board_dim)
-speed = 60
+speed = 10
 apple_coord = (random.randint(1, board_dim - 1), random.randint(1, board_dim - 1))
 size = (x_max, y_max)
 screen = pygame.display.set_mode(size)
@@ -74,11 +74,20 @@ def coord_to_dir(coord):
     elif dy == -1:
         return 'up'
     else:
-        print("no valid coord_to_dir")
         return None
 
 
-def is_move_safe(head, move, snake_body, depth=10):
+def is_move_safe(head, move, snake_body, depth=6):
+    """
+    determines if a proposed move is safe for the snake by searching a depth of 6 moves ahead.
+
+    :param head: the current position of the snake's head.
+    :param move: the proposed move as a tuple containing a coordinate.
+    :param snake_body: snake's body coordinates in as a list.
+    :param depth: the depth of the move lookahead. defaults to 6.
+    :return: boolean value indicating if the move is safe.
+    """
+
     new_head = (head[0] + move[0], head[1] + move[1])
 
     if not (0 <= new_head[0] < board_dim and 0 <= new_head[1] < board_dim):
@@ -98,6 +107,14 @@ def is_move_safe(head, move, snake_body, depth=10):
 
 
 def a_star(start, goal):
+    """
+    implements A* to find the shortest path from snake's head to apple.
+
+    :param start: snake's current head position
+    :param goal: apples position
+    :return: a list representing the path from snake's head to apple as coordinates, or None in case no valid path exists.
+    """
+
     frontier = PriorityQueue()
     frontier.put((0, start))
     came_from = {start: None}
@@ -127,13 +144,18 @@ def a_star(start, goal):
             path.reverse()
 
             return path
-            # if len(path) > 1:
-            #     return path[1]
-            # else:
-            #     return path[0]
 
 
 def find_next_move(start, goal, snake_body):
+    """
+    determines the next move towards the apple using A*, or a safe alternative if there is no valid path for A*.
+
+    :param start: coordinates of snake's head
+    :param goal: coordinates of the apple
+    :param snake_body: coordinates of the snake's body as list
+    :return: a list of the shortest path towards the apple, or the safest move in case no valid path can be found.
+    """
+
     path = a_star(start, goal)
     if path is not None:
         return path
