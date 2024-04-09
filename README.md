@@ -10,11 +10,7 @@ Stable-Baselines3: `pip install stable-baselines3`
 ## Repo Overview
 - [snake.py](https://github.com/viggostarcke/rl-snake/blob/main/snake.py): Holds attributes describing the snakes body aswell as position and functions to check for collisions.
 - [game.py](https://github.com/viggostarcke/rl-snake/blob/main/game.py): PyGame implementation to play the game manually. Run `python game.py` to play the game.
-- [environment.py](https://github.com/viggostarcke/rl-snake/blob/main/environment.py): Custom environment which follows OpenAI's Gymnasium framework structure.\
-*Action space* is set to a discrete 3. Turn left, turn right or continue path.\
-*Observation space* is a dictionary of 2 arrays: Relevant distances in each compass direction, and information of the 3 immediate adjacent tiles.\
-*reset()*-function resets the snake position to the middle of the game grid, aswell as the apples position and the score.\
-*step()*-function moves the snake and then checks for collisions with either obstacles or apple; and rewards accordingly.
+- [environment.py](https://github.com/viggostarcke/rl-snake/blob/main/environment.py): Custom environment which follows OpenAI's Gymnasium framework structure.
 - [dqn_agent.py](https://github.com/viggostarcke/rl-snake/blob/main/dqn_agent.py): A standard stable-baselines3 DQN implementation of a game agent.
 - [ppo_agent.py](https://github.com/viggostarcke/rl-snake/blob/main/ppo_agent.py): A standard stable-baselines3 PPO implementation of a game agent.
 - [a_star_agent.py](https://github.com/viggostarcke/rl-snake/blob/main/a_star_agent.py): 
