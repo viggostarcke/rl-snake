@@ -1,7 +1,7 @@
 # Bachelor Thesis 2024 Project: Learning to Play Snake with RL
 
 ## Dependencies
-Following libraries should be installed as **dependencies** to run everything in this repo\
+Following libraries should be installed to run everything in this repo\
 PyGame: `pip install pygame`\
 Gymnasium: `pip install gymnasium`\
 PyTorch: `pip install torch`\
