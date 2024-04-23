@@ -152,11 +152,11 @@ class SnakeEnv(gym.Env):
         reward = 0
 
         if self.snake.check_wall_collision(self.board_dim) or self.snake.check_self_collision():
-            reward -= 1000
+            reward -= 200
             self.reset_apple()
             done = True
         elif self.hunger >= self.stamina:
-            reward -= 200
+            reward -= 100
             done = True
         else:
             if self.snake.check_apple_eat(self.apple_coord):
@@ -227,9 +227,9 @@ class SnakeEnv(gym.Env):
             self.clock = pygame.time.Clock()
 
         # render
-        self.window.fill("black")
+        self.window.fill("white")
 
-        bg_block_image = pygame.image.load('.img/black_square.png')
+        bg_block_image = pygame.image.load('.img/white_square.png')
         bg_block_image = pygame.transform.scale(bg_block_image, (self.square_size, self.square_size))
 
         for row in range(self.board_dim):
@@ -445,3 +445,25 @@ class SnakeEnv(gym.Env):
             dist_to_apple = 0
 
         return np.array([dist_to_obstacle, dist_to_apple])
+
+    def calculate_spaciousness(self, start_position):
+        moves = [(0, 1), (0, -1), (1, 0), (-1, 0)]  # Up, Down, Right, Left
+        queue = [(start_position, 0)]  # Each element is (position, move_count)
+        visited = set()  # To track visited positions
+        visited.add(start_position)
+
+        reachable_states = 0
+
+        while queue:
+            current_position, move_count = queue.pop(0)
+            if move_count < 3:  # Limit to 3 moves
+                for dx, dy in moves:
+                    next_position = (current_position[0] + dx, current_position[1] + dy)
+                    if (0 <= next_position[0] < self.board_dim) and (
+                            0 <= next_position[1] < self.board_dim):  # Stay within bounds
+                        if next_position not in self.snake.get_body_coords() and next_position not in visited:
+                            visited.add(next_position)
+                            queue.append((next_position, move_count + 1))
+                            reachable_states += 1
+
+        return reachable_states

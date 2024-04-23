@@ -21,6 +21,7 @@ learn = True if parser.parse_args().learn or parser.parse_args().l else False
 test = True if parser.parse_args().test or parser.parse_args().t else False
 
 num_timesteps = 1_000_000
+num_games = 100
 
 if learn:
     model = PPO(
@@ -44,7 +45,8 @@ if learn:
 if test:
     model = PPO.load("ppo_agent")
     obs = env.reset()
-    for episode in range(num_timesteps):
+    total_score = 0
+    for episode in range(num_games):
         obs, info = env.reset()
         done = False
         while not done:
@@ -52,3 +54,5 @@ if test:
             obs, rewards, terminated, truncated, info = env.step(action)
             done = terminated or truncated
         print("score: {}".format(env.score))
+        total_score += env.score
+    print("avg. score: {}".format(total_score / num_games))

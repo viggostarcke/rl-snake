@@ -19,6 +19,8 @@ size = (x_max, y_max)
 screen = pygame.display.set_mode(size)
 snake = Snake(board_dim)
 run_game = True
+total_score = 0
+num_games = 0
 
 
 def get_neighbours(current):
@@ -176,7 +178,9 @@ while run_game:
 
     path = find_next_move(snake.get_head(), apple_coord, snake.body)
     if path is None:
-        print("Score: {}".format(score))
+        total_score += score
+        num_games += 1
+        print("Game: {}, ".format(num_games) + "Score: {}, ".format(score) + "Avg. Score: {}".format(total_score / num_games))
         snake.reset(board_dim)
         while True:
             apple_coord = (random.randint(0, board_dim - 1), random.randint(0, board_dim - 1))
@@ -207,6 +211,8 @@ while run_game:
 
     # check if collision
     if snake.check_wall_collision(board_dim) or snake.check_self_collision():
+        total_score += score
+        num_games += 1
         print("Score: {}".format(score))
         snake.reset(board_dim)
         while True:
@@ -225,9 +231,9 @@ while run_game:
                 break
 
     # render
-    screen.fill("black")
+    screen.fill("white")
 
-    bg_block_image = pygame.image.load('.img/black_square.png')
+    bg_block_image = pygame.image.load('.img/white_square.png')
     bg_block_image = pygame.transform.scale(bg_block_image, (square_size, square_size))
 
     for row in range(board_dim):
