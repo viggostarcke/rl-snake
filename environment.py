@@ -17,8 +17,8 @@ class SnakeEnv(gym.Env):
 
     def __init__(self, render_mode=None, size=10):
         self.score = 0
-        self.x_max = 600
-        self.y_max = 600
+        self.x_max = 800
+        self.y_max = 800
         self.board_dim = size
         self.square_size = math.floor(self.x_max / self.board_dim)
         self.apple_coord = (random.randint(1, self.board_dim - 1), random.randint(1, self.board_dim - 1))

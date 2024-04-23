@@ -9,8 +9,8 @@ pygame.init()
 clock = pygame.time.Clock()
 
 score = 0
-x_max = 600
-y_max = 600
+x_max = 800
+y_max = 800
 board_dim = 10
 square_size = math.floor(x_max / board_dim)
 speed = 10
