@@ -17,20 +17,20 @@ Stable-Baselines3: `pip install stable-baselines3`
 
 ## Environment Overview
 ### Action space
-**0-2:** Turn left, continue path, turn right.\
+**0-2:** Turn left, continue path, turn right.
 
 ### Observation space:
 - **compass_distances:** 8 element array that describes the distance to nearest object and apple in each compass direction. Each element holds a tuple containing (distance to nearest obstacle, distance to apple). If there is no apple in that direction it holds a standard value of 0.
-- **adjacent_tiles:** 3 element array that describes the 3 immediate surrounding tiles around the snake's head. 0 = tile contains obstacle which will lead to a collision, 0.5 = tile contains apple, 1 = tile either contains nothing.
 
 ### Hunger:
 A countdown, which essentially limits the total amount of moves without obtaining an apple to the total amount of tiles on the board.
-This discourages getting stuck in endless loops and local maxima.
+This discourages getting stuck in local maxima due to endless loop behavior.
 
 ### Reward function:
-- **-1000:** For an action that results in collision with the wall or snake's body, or reaches the hunger limit (100 moves with no apple).
-- **-1:** For an action that neither results in obtaining an apple nor results in a collision with the wall, snake's body or reaching the hunger limit.
-- **+100:** For an action that results in obtaining an apple.
+- **-100:** For an action that results in collision with the wall or snake's body.
+- **-20** For an action that reaches the hunger limit (100 moves without eating an apple).
+- **-1:** For an empty action (i.e. does not result in collision, eating apple or reaching hunger limit).
+- **+20:** For an action that results in obtaining an apple.
 
 ## Instructions
 Run the game to play it manually: `python .\game.py`\
@@ -39,5 +39,5 @@ Run the game to see the A* agent play it: `python .\a_star_agent.py`
 Run an agent, and pass arguments:\
 `--learn` (`-l`): Runs sb3 *.learn* method and saves the model in a file `dqn_agent.zip` or `ppo_agent.zip`.\
 `--test` (`-t`): Runs the saved model.\
-`-render` (`-r`): Renders every game.\
+`--render` (`-r`): Renders every game.\
 ex: `python .\dqn_agent.py --test -r` (runs the saved DQN model and renders every game.)

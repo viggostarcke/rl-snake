@@ -1,9 +1,7 @@
 import argparse
-import wandb
 
 from environment import SnakeEnv
 from stable_baselines3 import PPO
-from wandb.integration.sb3 import WandbCallback
 
 parser = argparse.ArgumentParser(description='Learning')
 parser.add_argument('--learn', default=False, action='store_true')
@@ -25,18 +23,10 @@ num_games = 100
 
 if learn:
     model = PPO(
-        "MultiInputPolicy",
+        "MlpPolicy",
         env,
-        learning_rate=3e-4,
-        n_steps=2048,
-        batch_size=128,
         gamma=0.99,
-        gae_lambda=0.95,
-        clip_range=0.2,
-        ent_coef=0.01,
-        n_epochs=10,
-        verbose=1,
-        tensorboard_log="./ppo_snake_tensorboard/"
+        ent_coef=0.01
     )
     # model = PPO.load("ppo_agent")
     # model.set_env(env)
@@ -46,6 +36,7 @@ if test:
     model = PPO.load("ppo_agent")
     obs = env.reset()
     total_score = 0
+    high_score = 0
     for episode in range(num_games):
         obs, info = env.reset()
         done = False
@@ -55,4 +46,7 @@ if test:
             done = terminated or truncated
         print("score: {}".format(env.score))
         total_score += env.score
-    print("avg. score: {}".format(total_score / num_games))
+        if env.score > high_score:
+            high_score = env.score
+    print("avg. score: {}".format(total_score / num_games) +
+          ", high score: {}".format(high_score) + ", loop incidents: {}".format(env.loop_counter))
