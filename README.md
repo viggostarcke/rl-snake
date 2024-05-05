@@ -1,4 +1,6 @@
 # Bachelor Thesis 2024 Project: Learning to Play Snake with RL
+![image](https://github.com/viggostarcke/rl-snake/assets/94063609/40fbd958-47fc-4490-b9a1-22bf5bfdf921)
+
 
 ## Dependencies
 Following libraries should be installed to run everything in this repo\
