@@ -1,5 +1,5 @@
 # Bachelor Thesis 2024 Project: Learning to Play Snake with RL
-![image](https://github.com/viggostarcke/rl-snake/assets/94063609/40fbd958-47fc-4490-b9a1-22bf5bfdf921)
+![flot_snake](https://github.com/viggostarcke/rl-snake/assets/94063609/b40bcb1c-cf2f-4c77-8d9c-5312151fb8ca)
 
 
 ## Dependencies
