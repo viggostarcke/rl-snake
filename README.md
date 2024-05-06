@@ -1,5 +1,5 @@
 # Bachelor Thesis 2024 Project: Learning to Play Snake with RL
-![flot_snake](https://github.com/viggostarcke/rl-snake/assets/94063609/b40bcb1c-cf2f-4c77-8d9c-5312151fb8ca)
+<img src="https://github.com/viggostarcke/rl-snake/assets/94063609/b40bcb1c-cf2f-4c77-8d9c-5312151fb8ca" width=500 height=auto>
 
 
 ## Dependencies
@@ -29,10 +29,10 @@ A countdown, which essentially limits the total amount of moves without obtainin
 This discourages getting stuck in local maxima due to endless loop behavior.
 
 ### Reward function:
-- **-100:** For an action that results in collision with the wall or snake's body.
-- **-20** For an action that reaches the hunger limit (100 moves without eating an apple).
-- **-1:** For an empty action (i.e. does not result in collision, eating apple or reaching hunger limit).
-- **+20:** For an action that results in obtaining an apple.
+- **-1:** For an action that results in collision with the wall or snake's body.
+- **-0.2:** For an action that reaches the hunger limit (100 moves without eating an apple).
+- **-0.01:** For an empty action (i.e. does not result in collision, eating apple or reaching hunger limit).
+- **+0.2:** For an action that results in obtaining an apple.
 
 ## Instructions
 Run the game to play it manually: `python .\game.py`\
