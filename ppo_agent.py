@@ -19,21 +19,21 @@ learn = True if parser.parse_args().learn or parser.parse_args().l else False
 test = True if parser.parse_args().test or parser.parse_args().t else False
 
 num_timesteps = 1_000_000
-num_games = 100
+num_games = 1000
 
 if learn:
     model = PPO(
-        "MlpPolicy",
+        "MultiInputPolicy",
         env,
         gamma=0.99,
         ent_coef=0.01
     )
-    # model = PPO.load("ppo_agent")
+    # model = PPO.load("ppo_agent_R3_10M")
     # model.set_env(env)
     model.learn(total_timesteps=num_timesteps)
-    model.save("ppo_agent")
+    model.save("ppo_agent_R2_1M")
 if test:
-    model = PPO.load("ppo_agent")
+    model = PPO.load("ppo_agent_R2_1M")
     obs = env.reset()
     total_score = 0
     high_score = 0
