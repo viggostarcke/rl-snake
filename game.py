@@ -11,7 +11,7 @@ x_max = 600
 y_max = 600
 board_dim = 10
 square_size = math.floor(x_max / board_dim)
-speed = 10
+speed = 7
 apple_coord = (random.randint(1, board_dim - 1), random.randint(1, board_dim - 1))
 size = (x_max, y_max)
 screen = pygame.display.set_mode(size)
@@ -70,9 +70,9 @@ while run_game:
                 break
 
     # render
-    screen.fill("black")
+    screen.fill("white")
 
-    bg_block_image = pygame.image.load('.img/black_square.png')
+    bg_block_image = pygame.image.load('.img/white_square.png')
     bg_block_image = pygame.transform.scale(bg_block_image, (square_size, square_size))
 
     for row in range(board_dim):
